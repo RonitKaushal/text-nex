@@ -1,0 +1,12 @@
+node_modules/
+rebranding/*
+uploads/*
+sessions/*
+package-lock.json
+bun.lock
+media/uploads/*
+pnpm-lock.yaml
+bun.lock
+.env
+utils/whatsapp.instance1.js
+utils/send2.js

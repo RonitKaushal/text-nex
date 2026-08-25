@@ -1,0 +1,32 @@
+{
+  "app": "TEXTNEXUS",
+  "generatedAt": "2026-07-21T11:50:56.198Z",
+  "master": "icon-1024.png",
+  "sizes": [
+    1024,
+    512,
+    256,
+    128,
+    64,
+    48,
+    32,
+    24,
+    16
+  ],
+  "files": {
+    "png": [
+      "icon-1024.png",
+      "icon-512.png",
+      "icon-256.png",
+      "icon-128.png",
+      "icon-64.png",
+      "icon-48.png",
+      "icon-32.png",
+      "icon-24.png",
+      "icon-16.png"
+    ],
+    "ico": "icon.ico",
+    "icns": "icon.icns",
+    "linux": "icon.png (512) / icon-512.png"
+  }
+}

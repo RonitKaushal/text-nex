@@ -1,0 +1,141 @@
+# Build TextNexus for macOS WITHOUT sharing code with anyone.
+# Code stays in YOUR private GitHub repo. Only you download the .dmg.
+#
+# How to run:
+#   1. Push this project to a PRIVATE GitHub repo
+#   2. GitHub → Actions → "Build macOS" → Run workflow
+#   3. When green → Artifacts → download textnexus-macos.zip
+name: Build macOS
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Why are you building? (optional note)'
+        required: false
+        default: 'manual mac build'
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: build-macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      actions: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # node-gyp needs distutils (removed from Python 3.12+). setuptools restores it.
+      - name: Setup Python for native rebuilds
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install setuptools (provides distutils for node-gyp)
+        run: python -m pip install --upgrade pip setuptools wheel
+
+      - name: Install root deps
+        run: npm install
+
+      # Embed UI only — skip electron icon rebuild (needs sharp in electron-core)
+      - name: Build Bulk WhatsApp UI (for embed)
+        working-directory: bulk-whatsapp/frontend
+        run: |
+          npm install
+          npm run build:ui
+
+      - name: Build Lead Gen UI
+        working-directory: lead-gen-app/frontend
+        run: |
+          npm install
+          npm run build
+
+      # electron-builder may pick icons/icon-256x256.png — force that file (and build/icon.png) to be >=512px
+      - name: Prepare Mac icons (force 512x512)
+        run: |
+          set -e
+          mkdir -p build/icons
+          SRC=""
+          for c in icons/icon-1024.png icons/icon-512.png icons/icon-512x512.png build/icons/icon-512.png build/icon.png; do
+            if [ -f "$c" ]; then SRC="$c"; break; fi
+          done
+          if [ -z "$SRC" ]; then
+            echo "No 512+ icon source found"
+            ls -la icons build build/icons || true
+            exit 1
+          fi
+          echo "Using icon source: $SRC"
+          cp "$SRC" build/icon.png
+          cp "$SRC" build/icons/icon-512.png
+          cp "$SRC" build/icons/512x512.png
+          # Overwrite the bad small icon WITH 512px content (same filename electron-builder looks for)
+          if [ -d icons ]; then
+            cp "$SRC" icons/icon-512x512.png
+            cp "$SRC" icons/icon-512.png
+            cp "$SRC" icons/icon-256x256.png
+          fi
+          node <<'NODE'
+          const fs = require('fs');
+          const files = ['build/icon.png', 'icons/icon-256x256.png', 'icons/icon-512x512.png'];
+          for (const f of files) {
+            if (!fs.existsSync(f)) { console.log(f, 'skip'); continue; }
+            const b = fs.readFileSync(f);
+            const w = b.readUInt32BE(16);
+            const h = b.readUInt32BE(20);
+            console.log(`${f} = ${w}x${h}`);
+            if (w < 512 || h < 512) {
+              console.error(`${f} must be at least 512x512`);
+              process.exit(1);
+            }
+          }
+          NODE
+
+      - name: Build TextNexus macOS sequentially (avoids hdiutil volume conflicts)
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          npm_config_python: python
+        run: |
+          set -e
+          # Clear any stuck DMG mounts from previous attempts
+          for v in /Volumes/TextNexus*; do
+            if [ -d "$v" ]; then
+              hdiutil detach "$v" -force || true
+            fi
+          done
+          npm run build
+          node scripts/protect-embedded-apps.mjs
+          # One arch at a time — parallel DMG mounts collide on CI runners
+          npx electron-builder --mac dmg zip --x64 --publish never
+          for v in /Volumes/TextNexus*; do
+            if [ -d "$v" ]; then
+              hdiutil detach "$v" -force || true
+            fi
+          done
+          npx electron-builder --mac dmg zip --arm64 --publish never
+
+      - name: List release folder
+        run: ls -lah release || true
+
+      - name: Upload mac artifacts (only YOU can download from private repo)
+        uses: actions/upload-artifact@v4
+        with:
+          name: textnexus-macos
+          path: |
+            release/*.dmg
+            release/*.zip
+          if-no-files-found: error
+          retention-days: 14

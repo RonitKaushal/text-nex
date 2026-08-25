@@ -1,0 +1,41 @@
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import { AppUpdateProvider } from './context/AppUpdateContext';
+import { UnreadProvider } from './context/UnreadContext';
+import { ServiceChromeProvider } from './context/ServiceChromeContext';
+import { VoiceControlProvider } from './context/VoiceControlContext';
+import { ErrorBoundary, PopoutServiceApp } from './components/common';
+import './index.css';
+
+function isPopoutRoute() {
+  return (window.location.hash || '').startsWith('#/popout/');
+}
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <ErrorBoundary>
+      {isPopoutRoute() ? (
+        <ThemeProvider>
+          <PopoutServiceApp />
+        </ThemeProvider>
+      ) : (
+        <ThemeProvider>
+          <AuthProvider>
+            <AppUpdateProvider>
+              <UnreadProvider>
+                <ServiceChromeProvider>
+                  <VoiceControlProvider>
+                    <App />
+                  </VoiceControlProvider>
+                </ServiceChromeProvider>
+              </UnreadProvider>
+            </AppUpdateProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      )}
+    </ErrorBoundary>
+  </StrictMode>
+);

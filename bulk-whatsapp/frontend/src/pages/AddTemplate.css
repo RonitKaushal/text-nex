@@ -1,0 +1,94 @@
+/* Add Template — TextNexus navy theme */
+
+.custom-select .ant-select-selector,
+.message-type-select .ant-select-selector,
+.variable-select .ant-select-selector {
+  background-color: #122033 !important;
+  border: 1px solid #1a2a3d !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  min-height: 40px !important;
+}
+
+.custom-select .ant-select-selection-item,
+.message-type-select .ant-select-selection-item {
+  color: #fff !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-select .ant-select-selection-placeholder,
+.message-type-select .ant-select-selection-placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.custom-select .ant-select-arrow,
+.message-type-select .ant-select-arrow {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.custom-select .ant-select-clear {
+  background: #122033 !important;
+  color: #fff !important;
+}
+
+.ant-select-dropdown {
+  background-color: #0a1524 !important;
+  border: 1px solid #1a2a3d !important;
+  border-radius: 10px !important;
+  padding: 6px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45) !important;
+}
+
+.ant-select-item {
+  color: #fff !important;
+  border-radius: 8px !important;
+  padding: 10px 12px !important;
+  margin: 2px 0 !important;
+}
+
+.ant-select-item-option-content {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: rgba(0, 149, 255, 0.18) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+}
+
+.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background-color: #122033 !important;
+}
+
+.ant-select-item-option-content span {
+  color: #fff;
+}
+
+/* Template editor toolbar */
+.template-toolbar-btn,
+.add-template-page .ant-btn-text {
+  background: #122033 !important;
+  border: 1px solid #1a2a3d !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  border-radius: 8px !important;
+}
+
+.add-template-page .ant-input,
+.add-template-page .ant-input-affix-wrapper,
+.add-template-page textarea.ant-input {
+  background: #122033 !important;
+  border-color: #1a2a3d !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+}
+
+.add-template-page .ant-input:focus,
+.add-template-page .ant-input-focused,
+.add-template-page textarea.ant-input:focus {
+  border-color: #0095FF !important;
+  box-shadow: 0 0 0 2px rgba(0, 149, 255, 0.15) !important;
+}

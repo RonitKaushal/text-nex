@@ -1,0 +1,10 @@
+@import url('https://fonts.cdnfonts.com/css/gilroy');
+
+html,
+body,
+#root {
+  font-family: 'Gilroy', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

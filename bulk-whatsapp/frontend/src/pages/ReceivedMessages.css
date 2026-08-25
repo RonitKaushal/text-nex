@@ -1,0 +1,59 @@
+/* Received Messages — TextNexus navy theme */
+
+.received-messages-page .ant-input,
+.received-messages-page .ant-input-affix-wrapper,
+.custom-select .ant-select-selector {
+  background-color: #122033 !important;
+  border: 1px solid #1a2a3d !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+}
+
+.custom-select .ant-select-selection-item {
+  color: #fff !important;
+}
+
+.custom-select .ant-select-arrow {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.custom-select .ant-select-clear {
+  background: #122033 !important;
+  color: #fff !important;
+}
+
+.ant-select-dropdown {
+  background-color: #0a1524 !important;
+  border: 1px solid #1a2a3d !important;
+  border-radius: 10px !important;
+}
+
+.ant-select-item {
+  color: #fff !important;
+  border-radius: 8px !important;
+}
+
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: rgba(0, 149, 255, 0.18) !important;
+  color: #fff !important;
+}
+
+.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background-color: #122033 !important;
+}
+
+.received-messages-page .ant-btn-primary {
+  background: #0095FF !important;
+  border-color: #0095FF !important;
+  box-shadow: none !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+}
+
+.received-messages-page .ant-btn-dangerous {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+  color: #EF4444 !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+}

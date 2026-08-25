@@ -1,0 +1,77 @@
+.serviceIconsContainer {
+  flex: 1;
+  padding: 12px 6px 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  overflow-x: visible;
+  align-items: stretch;
+  min-height: 0; /* Important for flex scrolling */
+  scrollbar-width: none; /* Firefox — hide scrollbar, keep scroll */
+  -ms-overflow-style: none; /* IE/Edge legacy */
+}
+
+.serviceIconRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 54px;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.serviceIconHit {
+  overflow: visible !important;
+}
+
+.serviceActiveRail {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 28px;
+  border-radius: 0 3px 3px 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Soft diffused brand glow behind the active service icon */
+.serviceIconGlow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  filter: blur(10px);
+  opacity: 0.72;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.serviceIconHitActive .serviceIconGlow {
+  animation: serviceGlowPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes serviceGlowPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
+.serviceIconsContainer::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
