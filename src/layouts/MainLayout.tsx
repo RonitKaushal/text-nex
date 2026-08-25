@@ -12,6 +12,8 @@ import { useUnreadOptional } from '../context/UnreadContext';
 
 const { Content } = Layout;
 
+const ICON_RAIL_WIDTH = 70;
+
 const winBtnStyle: CSSProperties = {
   width: 46,
   height: '100%',
@@ -137,9 +139,8 @@ export function MainLayout({
     };
   }, []);
 
-  // Popout / special shells can hide chrome. Native macOS fullscreen must NOT —
-  // macOS often restores apps into a fullscreen Space, which was hiding the
-  // service icon rail entirely on Mac builds.
+  // Only hide for special shells (e.g. popout). Native macOS fullscreen must NOT
+  // hide the rail — green button / Space restore often sets fullscreen on Mac.
   const sidebarsHidden = hideSidebars;
   const isMac = window.electronAPI?.platform === 'darwin';
 
@@ -251,19 +252,16 @@ export function MainLayout({
           minHeight: 0,
           overflow: 'hidden',
           background: isDarkMode ? APP_BG_GRADIENT : '#f0f2f5',
-          flexDirection: 'row',
-          display: 'flex',
         }}
       >
         {!sidebarsHidden && (
           <>
             <aside
               style={{
-                width: 70,
-                minWidth: 70,
-                maxWidth: 70,
-                flex: '0 0 70px',
-                flexShrink: 0,
+                width: ICON_RAIL_WIDTH,
+                minWidth: ICON_RAIL_WIDTH,
+                maxWidth: ICON_RAIL_WIDTH,
+                flex: `0 0 ${ICON_RAIL_WIDTH}px`,
                 background: isDarkMode ? 'transparent' : '#fff',
                 borderRight: `1px solid ${isDarkMode ? COLORS.APP_BORDER : '#d9d9d9'}`,
                 boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
@@ -369,9 +367,7 @@ export function MainLayout({
             overflow: 'hidden',
             marginLeft: 0,
             minHeight: 0,
-            minWidth: 0,
             height: '100%',
-            flex: 1,
           }}
         >
           {children}

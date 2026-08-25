@@ -969,7 +969,6 @@ function wideBtn(isDarkMode: boolean): CSSProperties {
     fontSize: 13,
   };
 }
-
 function rowBtn(): CSSProperties {
   return {
     display: 'flex',
@@ -985,3 +984,4 @@ function rowBtn(): CSSProperties {
     outline: 'none',
   };
 }
+
