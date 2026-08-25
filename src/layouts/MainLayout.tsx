@@ -10,7 +10,7 @@ import { getServiceConfig } from '../utils/serviceConfig';
 import { APP_TOP_BAR_HEIGHT, APP_BG_GRADIENT, APP_SIDEBAR_BG, COLORS } from '../constants';
 import { useUnreadOptional } from '../context/UnreadContext';
 
-const { Sider, Content } = Layout;
+const { Content } = Layout;
 
 const winBtnStyle: CSSProperties = {
   width: 46,
@@ -137,9 +137,23 @@ export function MainLayout({
     };
   }, []);
 
-  const sidebarsHidden = hideSidebars || fullscreen;
+  // Popout / special shells can hide chrome. Native macOS fullscreen must NOT —
+  // macOS often restores apps into a fullscreen Space, which was hiding the
+  // service icon rail entirely on Mac builds.
+  const sidebarsHidden = hideSidebars;
+  const isMac = window.electronAPI?.platform === 'darwin';
 
-  const windowControls = (
+  const windowControls = isMac ? (
+    <div
+      style={{
+        height: APP_TOP_BAR_HEIGHT,
+        paddingLeft: 78,
+        background: isDarkMode ? APP_SIDEBAR_BG : '#f0f0f0',
+        borderBottom: `1px solid ${isDarkMode ? COLORS.APP_BORDER : '#d9d9d9'}`,
+        WebkitAppRegion: 'drag',
+      } as React.CSSProperties}
+    />
+  ) : (
     <div
       style={{
         height: APP_TOP_BAR_HEIGHT,
@@ -237,20 +251,26 @@ export function MainLayout({
           minHeight: 0,
           overflow: 'hidden',
           background: isDarkMode ? APP_BG_GRADIENT : '#f0f2f5',
+          flexDirection: 'row',
+          display: 'flex',
         }}
       >
         {!sidebarsHidden && (
           <>
-            <Sider
-              width={70}
-              collapsedWidth={70}
+            <aside
               style={{
+                width: 70,
+                minWidth: 70,
+                maxWidth: 70,
+                flex: '0 0 70px',
+                flexShrink: 0,
                 background: isDarkMode ? 'transparent' : '#fff',
                 borderRight: `1px solid ${isDarkMode ? COLORS.APP_BORDER : '#d9d9d9'}`,
                 boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
                 zIndex: 100,
                 height: '100%',
                 overflow: 'hidden',
+                position: 'relative',
               }}
             >
               <WorkspaceIconSidebar
@@ -280,7 +300,7 @@ export function MainLayout({
                 onShowDashboard={onShowDashboard}
                 unreadById={unreadById}
               />
-            </Sider>
+            </aside>
 
             <div
               style={{
@@ -349,7 +369,9 @@ export function MainLayout({
             overflow: 'hidden',
             marginLeft: 0,
             minHeight: 0,
+            minWidth: 0,
             height: '100%',
+            flex: 1,
           }}
         >
           {children}

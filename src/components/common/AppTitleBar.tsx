@@ -167,6 +167,7 @@ export function AppTitleBar({
     };
   }, []);
 
+  const isMac = window.electronAPI?.platform === 'darwin';
   const bg = isDarkMode ? APP_SIDEBAR_BG : '#f0f0f0';
   const border = isDarkMode ? COLORS.APP_BORDER : '#d9d9d9';
   const muted = isDarkMode ? '#9aa0a6' : '#595959';
@@ -209,7 +210,8 @@ export function AppTitleBar({
         display: 'flex',
         alignItems: 'center',
         gap: 10,
-        padding: '0 0 0 8px',
+        // Leave room for native macOS traffic lights (close / minimize / zoom)
+        padding: isMac ? '0 12px 0 78px' : '0 0 0 8px',
         background: bg,
         borderBottom: `1px solid ${border}`,
         flexShrink: 0,
@@ -662,35 +664,37 @@ export function AppTitleBar({
         </Tooltip>
       </Space>
 
-      <div style={{ display: 'flex', height: '100%', ...noDrag }}>
-        <Button
-          type="text"
-          icon={<MinusOutlined />}
-          onClick={() => void window.electronAPI?.windowMinimize?.()}
-          style={{ width: 46, height: '100%', borderRadius: 0, color: muted }}
-        />
-        <Button
-          type="text"
-          icon={<BorderOutlined style={{ fontSize: 12 }} />}
-          onClick={() => void window.electronAPI?.windowMaximize?.()}
-          style={{ width: 46, height: '100%', borderRadius: 0, color: muted }}
-          title={maximized ? 'Restore' : 'Maximize'}
-        />
-        <Button
-          type="text"
-          icon={<CloseOutlined />}
-          onClick={() => void window.electronAPI?.windowClose?.()}
-          style={{ width: 46, height: '100%', borderRadius: 0, color: muted }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#e81123';
-            e.currentTarget.style.color = '#fff';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'transparent';
-            e.currentTarget.style.color = muted;
-          }}
-        />
-      </div>
+      {!isMac && (
+        <div style={{ display: 'flex', height: '100%', ...noDrag }}>
+          <Button
+            type="text"
+            icon={<MinusOutlined />}
+            onClick={() => void window.electronAPI?.windowMinimize?.()}
+            style={{ width: 46, height: '100%', borderRadius: 0, color: muted }}
+          />
+          <Button
+            type="text"
+            icon={<BorderOutlined style={{ fontSize: 12 }} />}
+            onClick={() => void window.electronAPI?.windowMaximize?.()}
+            style={{ width: 46, height: '100%', borderRadius: 0, color: muted }}
+            title={maximized ? 'Restore' : 'Maximize'}
+          />
+          <Button
+            type="text"
+            icon={<CloseOutlined />}
+            onClick={() => void window.electronAPI?.windowClose?.()}
+            style={{ width: 46, height: '100%', borderRadius: 0, color: muted }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#e81123';
+              e.currentTarget.style.color = '#fff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = muted;
+            }}
+          />
+        </div>
+      )}
     </div>
 
     <WorkspaceSwitcherSheet

@@ -5,10 +5,22 @@ import crypto from 'crypto';
 import { fileURLToPath, pathToFileURL } from 'url';
 import Store from 'electron-store';
 import userAgent, { getUserAgentForService, getWhatsAppUserAgent } from './utils/userAgent.js';
+import { isMac } from './utils/environment.js';
 import { registerIpcHandlers } from './ipc/handlers.js';
 import { attachAdBlocker } from './utils/adBlock.js';
 import { sshDisconnectAll } from './ssh/sessions.js';
 import { stopWindowsSpeech } from './utils/windowsSpeech.js';
+
+/** Frameless custom chrome on Win/Linux; native traffic lights on macOS. */
+function windowChromeOptions() {
+  if (isMac) {
+    return {
+      titleBarStyle: 'hiddenInset',
+      trafficLightPosition: { x: 16, y: 18 },
+    };
+  }
+  return { frame: false };
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -200,7 +212,7 @@ function openPopoutService(payload) {
     minHeight: 600,
     icon: getAppIconPath(),
     title: payload.name || 'TextNexus',
-    frame: false,
+    ...windowChromeOptions(),
     autoHideMenuBar: true,
     backgroundColor: '#000d18',
     webPreferences: {
@@ -829,7 +841,7 @@ function createWindow() {
     minHeight: 600,
     icon: getAppIconPath(),
     title: 'TextNexus',
-    frame: false,
+    ...windowChromeOptions(),
     autoHideMenuBar: true,
     menuBarVisible: false,
         webPreferences: {
@@ -846,7 +858,6 @@ function createWindow() {
       backgroundThrottling: true,
       partition: 'persist:main'
     },
-    titleBarStyle: 'hidden',
     show: false
   });
 
