@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from
 import {
   CheckCircleOutlined,
   LockOutlined,
+  MoreOutlined,
   PlusOutlined,
   SearchOutlined,
   SafetyCertificateOutlined,
@@ -15,7 +16,13 @@ import type { ServiceTab, Workspace } from '../types';
 import './Dashboard.css';
 
 const LIVE = '#c8f542';
-const PROFILE_ACCENTS = ['#8b7cf6', '#14b8a6', '#c9813a', '#ec4899', '#3b82f6'];
+const PROFILE_FOLDER_GRADIENTS = [
+  'linear-gradient(160deg, #2563eb 0%, #60a5fa 48%, #bfdbfe 100%)',
+  'linear-gradient(160deg, #e11d48 0%, #fb7185 48%, #fecdd3 100%)',
+  'linear-gradient(160deg, #0f766e 0%, #2dd4bf 48%, #99f6e4 100%)',
+  'linear-gradient(160deg, #c2410c 0%, #fb923c 48%, #fed7aa 100%)',
+  'linear-gradient(160deg, #7c3aed 0%, #a78bfa 48%, #ddd6fe 100%)',
+];
 
 interface SessionInfo {
   partition: string;
@@ -572,140 +579,68 @@ export default function Dashboard({
         }}
       >
         {workspaces.map((ws, idx) => {
-          const accent = PROFILE_ACCENTS[idx % PROFILE_ACCENTS.length];
+          const gradient = PROFILE_FOLDER_GRADIENTS[idx % PROFILE_FOLDER_GRADIENTS.length];
           const services = ws.services;
-          const preview = services.slice(0, 3);
-          const lastInWs = services
-            .map((s) => sessionsByPartition[s.partition]?.lastAccessed || 0)
-            .reduce((a, b) => Math.max(a, b), 0);
           const isActiveWs = ws.id === activeWorkspace;
+          const subtitle =
+            services.length === 0
+              ? 'Empty profile'
+              : services.length === 1
+                ? services[0].name
+                : `${services[0].name} & More`;
+          const fileLabel = `${services.length.toLocaleString('en-US').replace(/,/g, ' ')} File${
+            services.length === 1 ? '' : 's'
+          }`;
           return (
             <button
               key={ws.id}
               type="button"
               onClick={() => onOpenWorkspace(ws.id)}
-              className="tn-profile-card"
-              style={{
-                ...cardStyle(isDarkMode, {
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  padding: 0,
-                  overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  minHeight: 252,
-                  boxShadow: isActiveWs ? `0 0 0 1px ${accent}` : undefined,
-                }),
-                color: textPrimary,
-              }}
+              className={`tn-folder-card${isActiveWs ? ' tn-folder-card--active' : ''}`}
+              style={{ backgroundImage: gradient }}
+              aria-label={`Open profile ${ws.name}`}
             >
-              <div className="tn-profile-card__header" style={{ padding: '16px 16px 0', display: 'flex', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontSize: 17, fontWeight: 700 }}>{ws.name}</div>
-                  <div style={{ fontSize: 12, color: textMuted, marginTop: 2 }}>
-                    {lastInWs
-                      ? `Active ${formatRelative(lastInWs)}`
-                      : services.length
-                        ? 'Ready'
-                        : 'Empty workspace'}
-                  </div>
+              <div className="tn-folder-card__papers" aria-hidden="true">
+                <div className="tn-folder-paper tn-folder-paper--1">
+                  <span /><span /><span />
                 </div>
-                <span
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 8,
-                    background: isDarkMode ? COLORS.APP_BG_ELEVATED : '#f3f3f3',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 12,
-                    fontWeight: 700,
-                  }}
-                >
-                  {services.length}
-                </span>
+                <div className="tn-folder-paper tn-folder-paper--2">
+                  <span /><span /><span />
+                </div>
+                <div className="tn-folder-paper tn-folder-paper--3">
+                  <span /><span /><span />
+                </div>
               </div>
 
-              <div className="tn-profile-card__preview" style={{ flex: 1, padding: '14px 16px', position: 'relative' }}>
-                <div className="tn-profile-sheet tn-profile-sheet--back" />
-                <div className="tn-profile-sheet tn-profile-sheet--middle" />
-                <div
-                  className="tn-profile-sheet tn-profile-sheet--front"
-                  style={{
-                    background: isDarkMode ? 'rgba(8, 12, 20, 0.3)' : 'rgba(255,255,255,0.42)',
-                    border: `1px solid ${isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.8)'}`,
-                    borderRadius: 14,
-                    padding: 12,
-                    transform: 'rotate(-1.5deg)',
-                    boxShadow: isDarkMode
-                      ? '0 10px 24px rgba(0,0,0,0.35)'
-                      : '0 8px 18px rgba(0,0,0,0.06)',
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: '0.06em',
-                      color: textMuted,
-                      marginBottom: 8,
-                    }}
+              <div className="tn-folder-card__front">
+                <div className="tn-folder-card__top">
+                  <div className="tn-folder-card__titles">
+                    <div className="tn-folder-card__title">{ws.name}</div>
+                    <div className="tn-folder-card__subtitle">{subtitle}</div>
+                  </div>
+                  <span className="tn-folder-card__menu" aria-hidden="true">
+                    <MoreOutlined />
+                  </span>
+                </div>
+                <div className="tn-folder-card__stats">
+                  <svg
+                    className="tn-folder-card__file-icon"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    aria-hidden="true"
                   >
-                    OPEN ACCOUNTS
-                  </div>
-                  {preview.length === 0 ? (
-                    <div style={{ fontSize: 12, color: textMuted }}>No accounts yet</div>
-                  ) : (
-                    preview.map((svc) => (
-                      <div
-                        key={svc.id}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 8,
-                          marginBottom: 6,
-                        }}
-                      >
-                        <ServiceLogo
-                          iconType={svc.iconType}
-                          customIcon={svc.customIcon}
-                          url={svc.url}
-                          size={18}
-                        />
-                        <span
-                          style={{
-                            fontSize: 12,
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                          }}
-                        >
-                          {svc.name}
-                        </span>
-                      </div>
-                    ))
-                  )}
+                    <rect x="4.5" y="2.5" width="8" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.3" />
+                    <path
+                      d="M3.5 4.5v8a1.5 1.5 0 0 0 1.5 1.5h6"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span>{fileLabel}</span>
                 </div>
-              </div>
-
-              <div
-                className="tn-profile-card__footer"
-                style={{
-                  marginTop: 'auto',
-                  padding: '12px 16px 14px',
-                  background: `linear-gradient(180deg, rgba(248,248,245,.82) 0%, rgba(43,43,50,.96) 32%, ${accent} 175%)`,
-                  borderTop: `1px solid ${isDarkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}`,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  fontSize: 12.5,
-                }}
-              >
-                <span style={{ color: textMuted }}>
-                  {services.length} account{services.length === 1 ? '' : 's'} ready
-                </span>
-                <span style={{ color: accent, fontWeight: 650 }}>Open profile →</span>
               </div>
             </button>
           );
@@ -715,42 +650,26 @@ export default function Dashboard({
           <button
             type="button"
             onClick={onAddWorkspace}
-            className="tn-profile-create-card"
-            style={{
-              ...cardStyle(isDarkMode, {
-                borderStyle: 'dashed',
-                  minHeight: 252,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 10,
-                cursor: 'pointer',
-                color: textMuted,
-                background: isDarkMode ? 'rgba(255,255,255,0.02)' : '#fafafa',
-              }),
-            }}
+            className="tn-folder-card tn-folder-card--create"
+            aria-label="Create new browser profile"
           >
-            <span
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: 14,
-                border: `1px dashed ${isDarkMode ? COLORS.APP_BORDER : '#d0d0d0'}`,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 22,
-              }}
-            >
-              <PlusOutlined />
-            </span>
-            <div style={{ textAlign: 'center', maxWidth: 180 }}>
-              <div style={{ fontWeight: 650, color: textPrimary, marginBottom: 4 }}>
-                New browser profile
+            <div className="tn-folder-card__papers" aria-hidden="true">
+              <div className="tn-folder-paper tn-folder-paper--1" />
+              <div className="tn-folder-paper tn-folder-paper--2" />
+              <div className="tn-folder-paper tn-folder-paper--3" />
+            </div>
+            <div className="tn-folder-card__front">
+              <div className="tn-folder-card__top">
+                <div className="tn-folder-card__titles">
+                  <div className="tn-folder-card__title">New profile</div>
+                  <div className="tn-folder-card__subtitle">Create isolated space</div>
+                </div>
+                <span className="tn-folder-card__menu tn-folder-card__menu--plus" aria-hidden="true">
+                  <PlusOutlined />
+                </span>
               </div>
-              <div style={{ fontSize: 12, lineHeight: 1.4 }}>
-                Create another isolated account space.
+              <div className="tn-folder-card__stats">
+                <span>Add browser profile</span>
               </div>
             </div>
           </button>

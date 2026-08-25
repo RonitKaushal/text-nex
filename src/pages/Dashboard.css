@@ -103,87 +103,215 @@
 
 .tn-profiles-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 16px !important;
+  gap: 18px !important;
   margin-bottom: 0 !important;
 }
 
-.tn-profile-card {
-  border-radius: 16px !important;
-  min-height: 252px !important;
-  background: #191a21 !important;
-  border-color: #383b45 !important;
-  box-shadow: none !important;
-}
-
-.tn-profile-card__header { position: relative; z-index: 3; }
-
-.tn-profile-card__preview {
-  height: 124px;
-  min-height: 124px;
-  overflow: hidden;
-  isolation: isolate;
-  box-sizing: border-box;
-}
-
-.tn-profile-sheet {
-  position: absolute;
-  left: 16%;
-  width: 68%;
-  height: 80px;
-  border-radius: 10px;
-  background: linear-gradient(145deg, #efefed, #c5c5c4);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
-}
-
-.tn-profile-sheet--back {
-  top: 9px;
-  transform: rotate(6deg);
-  opacity: 0.72;
-}
-
-.tn-profile-sheet--middle {
-  top: 15px;
-  transform: rotate(-6deg);
-  opacity: 0.9;
-}
-
-.tn-profile-sheet--front {
-  position: absolute;
-  z-index: 2;
-  top: 22px;
-  left: 14%;
-  margin: 0;
-  width: 72%;
-  height: 94px;
-  min-height: 0;
-  box-sizing: border-box;
-  overflow: hidden;
-  transform: rotate(-2deg) !important;
-}
-
-.tn-profile-card__footer {
+/* Folder card — matches reference pocket-folder UI */
+.tn-folder-card {
+  --folder-radius: 30px;
   position: relative;
-  z-index: 4;
-  min-height: 52px;
-  padding: 10px 14px 12px !important;
-  border-top-color: rgba(255,255,255,.2) !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100%;
+  aspect-ratio: 1 / 1.02;
+  min-height: 230px;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  border-radius: var(--folder-radius);
+  background-color: #3b82f6;
+  background-size: cover;
+  background-position: center;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 12px 28px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  text-align: left;
+  color: #fff;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  isolation: isolate;
 }
 
-.tn-profiles-section--dark .tn-profile-sheet--front {
-  background: #f4f3f0 !important;
-  border-color: rgba(255,255,255,0.7) !important;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4) !important;
+.tn-folder-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 18px 36px rgba(0, 0, 0, 0.24);
 }
 
-.tn-profiles-section--dark .tn-profile-sheet--front > div,
-.tn-profiles-section--dark .tn-profile-sheet--front span { color: #343944 !important; }
+.tn-folder-card:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 3px;
+}
 
-.tn-profile-create-card {
-  border-radius: 16px !important;
-  box-shadow: none !important;
-  min-height: 252px !important;
-  background: rgba(25, 26, 33, 0.52) !important;
-  border-color: #383b45 !important;
+.tn-folder-card--active {
+  box-shadow:
+    0 0 0 2px #f7f8fb,
+    0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+.tn-folder-card__papers {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 10%;
+  width: 62%;
+  height: 46%;
+  pointer-events: none;
+  transform: translateX(-46%);
+}
+
+.tn-folder-paper {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 72%;
+  height: 92%;
+  border-radius: 12px;
+  background: #f6f6f4;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 16px 13px 10px;
+  box-sizing: border-box;
+}
+
+.tn-folder-paper > span {
+  display: block;
+  height: 2.5px;
+  border-radius: 2px;
+  background: #d0d0cc;
+}
+
+.tn-folder-paper > span:nth-child(1) { width: 70%; }
+.tn-folder-paper > span:nth-child(2) { width: 54%; }
+.tn-folder-paper > span:nth-child(3) { width: 62%; }
+
+.tn-folder-paper--1 {
+  z-index: 1;
+  left: 0;
+  transform: rotate(-9deg) translateY(4px);
+  opacity: 0.96;
+}
+
+.tn-folder-paper--2 {
+  z-index: 2;
+  left: 16%;
+  transform: rotate(1deg);
+}
+
+.tn-folder-paper--3 {
+  z-index: 3;
+  left: 32%;
+  transform: rotate(11deg) translateY(-2px);
+  background: #fbfbf9;
+}
+
+.tn-folder-card__front {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 56%;
+  margin-top: auto;
+  padding: 20px 20px 18px;
+  background: #1a1a1a;
+  color: #fff;
+  /* Raised left tab → soft rounded step → lower right shelf */
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 220' preserveAspectRatio='none'%3E%3Cpath fill='white' d='M0 44C0 20 20 0 44 0h92c28 0 36 44 92 44H320V220H0V44z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 220' preserveAspectRatio='none'%3E%3Cpath fill='white' d='M0 44C0 20 20 0 44 0h92c28 0 36 44 92 44H320V220H0V44z'/%3E%3C/svg%3E");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.tn-folder-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tn-folder-card__titles {
+  min-width: 0;
+  flex: 1;
+}
+
+.tn-folder-card__title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tn-folder-card__subtitle {
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #8f8f8f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tn-folder-card__menu {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-top: -2px;
+  margin-right: -6px;
+  color: #ffffff;
+  font-size: 18px;
+  line-height: 1;
+  opacity: 0.95;
+}
+
+.tn-folder-card__menu--plus {
+  font-size: 14px;
+}
+
+.tn-folder-card__stats {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
+  color: #9a9a9a;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.tn-folder-card__file-icon {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.tn-folder-card--create {
+  background-image: linear-gradient(145deg, #374151 0%, #6b7280 45%, #d1d5db 100%) !important;
+}
+
+.tn-folder-card--create .tn-folder-paper {
+  background: rgba(247, 247, 245, 0.5);
+  box-shadow: none;
+}
+
+.tn-folder-card--create .tn-folder-card__front {
+  background: #141414;
 }
 
 @media (max-width: 700px) {
