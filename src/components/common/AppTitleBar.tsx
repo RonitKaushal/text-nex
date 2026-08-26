@@ -32,12 +32,10 @@ import {
 } from '../../constants/splitLayouts';
 import type { ServiceTab, Workspace } from '../../types';
 import type { BrowserTabItem } from '../../types/browserTab';
-import { BrandLogo } from './BrandLogo';
 import { getServiceConfig } from '../../utils/serviceConfig';
 import { useInboxOptional } from '../../context/InboxContext';
 import { formatBadge } from '../../context/UnreadContext';
-
-const { Text } = Typography;
+import arcticSwitchWordmark from '../../assets/Arctic Switch.png';const { Text } = Typography;
 
 const noDrag: CSSProperties = { WebkitAppRegion: 'no-drag' } as CSSProperties;
 const drag: CSSProperties = { WebkitAppRegion: 'drag' } as CSSProperties;
@@ -206,10 +204,19 @@ export function AppTitleBar({
         ...drag,
       }}
     >
-      <BrandLogo
-        isDarkMode={isDarkMode}
-        size={40}
-        style={{ flexShrink: 0, ...noDrag }}
+      <img
+        src={arcticSwitchWordmark}
+        alt="Arctic Switch"
+        draggable={false}
+        style={{
+          height: 30,
+          width: 'auto',
+          maxWidth: 168,
+          objectFit: 'contain',
+          display: 'block',
+          flexShrink: 0,
+          ...noDrag,
+        }}
       />
 
       <Button

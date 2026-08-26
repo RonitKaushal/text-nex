@@ -480,16 +480,15 @@ export default function Profile({
             </Button>
 
             <Button
-              type="primary"
               icon={<KeyOutlined />}
               onClick={() => setRenewOpen(true)}
               style={{
                 ...headerBtnBase,
-                border: 'none',
+                color: '#111111',
+                background: '#ffffff',
+                border: '1px solid #d9d9d9',
+                fontWeight: 600,
                 paddingInline: 16,
-                background:
-                  'linear-gradient(135deg, #ffffff 0%, #ffffff 55%, #b0b0b0 100%)',
-                boxShadow: '0 4px 14px rgba(255,255,255,0.16)',
               }}
             >
               Renew License

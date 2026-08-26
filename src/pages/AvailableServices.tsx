@@ -215,6 +215,16 @@ const BUILTIN_SERVICES: DisplayService[] = (
   };
 });
 
+/** Kept in code / configs — hidden from Available Services catalog UI only. */
+const HIDDEN_FROM_CATALOG = new Set([
+  'vegamovies',
+  'movies4u',
+  'hdhub4u',
+  'katmoviehd',
+  'bulk-whatsapp',
+  'lead-gen',
+]);
+
 export default function AvailableServices({
   isDarkMode = false,
   onSelectService,
@@ -262,7 +272,8 @@ export default function AvailableServices({
       builtIn: false,
       iconNode: s.iconSrc ? img(s.iconSrc, s.name) : <GlobalOutlined style={{ color: s.color }} />,
     }));
-    return [...BUILTIN_SERVICES, ...customDisplay];
+    const visibleBuiltIn = BUILTIN_SERVICES.filter((s) => !HIDDEN_FROM_CATALOG.has(s.id));
+    return [...visibleBuiltIn, ...customDisplay];
   }, [customCatalog]);
 
   const categories = useMemo(() => {
@@ -270,13 +281,16 @@ export default function AvailableServices({
     for (const c of customCategories) {
       if (!base.some((b) => b.key === c.key)) base.push(c);
     }
-    return base.map((c) => ({
-      ...c,
-      count:
-        c.key === 'all'
-          ? allServices.length
-          : allServices.filter((s) => s.category === c.key).length,
-    }));
+    return base
+      .map((c) => ({
+        ...c,
+        count:
+          c.key === 'all'
+            ? allServices.length
+            : allServices.filter((s) => s.category === c.key).length,
+      }))
+      // Hide empty built-in groups (e.g. Movies / Pro Plan when their services are hidden)
+      .filter((c) => c.key === 'all' || c.key === 'popular' || c.count > 0);
   }, [customCategories, allServices]);
 
   const categoryOptions = useMemo(
