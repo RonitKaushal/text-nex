@@ -9,6 +9,11 @@ import { isMac } from './utils/environment.js';
 import { registerIpcHandlers } from './ipc/handlers.js';
 import { attachAdBlocker } from './utils/adBlock.js';
 import { sshDisconnectAll } from './ssh/sessions.js';
+import {
+  hardenGoogleSession,
+  isGooglePartition,
+  isGoogleServiceType,
+} from './utils/googleSession.js';
 
 /** Frameless custom chrome on Win/Linux; native traffic lights on macOS. */
 function windowChromeOptions() {
@@ -725,12 +730,53 @@ function injectPasskeyBlockIntoFrame(contents, frameProcessId, frameRoutingId) {
   } catch (_) {}
 }
 
+function isGoogleHostUrl(url) {
+  try {
+    const host = new URL(String(url || '')).hostname.toLowerCase();
+    return (
+      host === 'google.com' ||
+      host.endsWith('.google.com') ||
+      host === 'gmail.com' ||
+      host.endsWith('.gmail.com') ||
+      host.endsWith('.gstatic.com') ||
+      host.endsWith('.googleusercontent.com') ||
+      host.endsWith('.googleapis.com') ||
+      host === 'accounts.youtube.com'
+    );
+  } catch {
+    return false;
+  }
+}
+
+function shouldSkipPasskeyBlock(contents) {
+  try {
+    const partition = String(contents?.session?.partition || '');
+    if (isGooglePartition(partition)) return true;
+  } catch {
+    /* ignore */
+  }
+  try {
+    if (isGoogleHostUrl(contents?.getURL?.() || '')) return true;
+  } catch {
+    /* ignore */
+  }
+  return false;
+}
+
 function attachPasskeyBlocker(contents) {
   if (!contents || contents.isDestroyed?.()) return;
   if (contents.__tnPasskeyBlockerAttached) return;
   contents.__tnPasskeyBlockerAttached = true;
 
   const run = (_event, ...args) => {
+    if (shouldSkipPasskeyBlock(contents)) return;
+    // Frame URL may be Google even when main partition is not
+    try {
+      const maybeUrl = typeof args[0] === 'string' ? args[0] : null;
+      if (maybeUrl && isGoogleHostUrl(maybeUrl)) return;
+    } catch {
+      /* ignore */
+    }
     // did-frame-navigate: (e, url, code, status, isMainFrame, frameProcessId, frameRoutingId)
     // did-frame-finish-load: (e, isMainFrame, frameProcessId, frameRoutingId)
     let frameProcessId;
@@ -754,6 +800,7 @@ function attachPasskeyBlocker(contents) {
   contents.on('did-frame-navigate', run);
   contents.on('did-frame-finish-load', run);
   contents.on('dom-ready', () => {
+    if (shouldSkipPasskeyBlock(contents)) return;
     try {
       contents.executeJavaScript(BLOCK_PASSKEYS_JS).catch(() => {});
     } catch (_) {}
@@ -1210,11 +1257,11 @@ app.whenReady().then(() => {
   const passkeyFramePreload = path.join(__dirname, 'passkey-frame-preload.js');
   const sessionsWithPasskeyBlock = new WeakSet();
 
-  const configureSession = (ses) => {
+  const configureSession = (ses, { blockPasskeys = true } = {}) => {
     attachAdBlocker(ses);
 
-    // Block WebAuthn / passkeys in every frame (incl. accounts.meta.com iframes)
-    if (!sessionsWithPasskeyBlock.has(ses)) {
+    // Block WebAuthn / passkeys (Meta etc). Skip for Google — broken WebAuthn flags "insecure browser".
+    if (blockPasskeys && !sessionsWithPasskeyBlock.has(ses)) {
       sessionsWithPasskeyBlock.add(ses);
       try {
         if (typeof ses.registerPreloadScript === 'function') {
@@ -1386,7 +1433,11 @@ app.whenReady().then(() => {
     attachAdBlocker(partitionSession);
     if (partition.includes('whatsapp') || partition.includes('persist:')) {
       console.log('Configuring partition:', partition);
-      configureSession(partitionSession);
+      const googlePart = isGooglePartition(partition);
+      configureSession(partitionSession, { blockPasskeys: !googlePart });
+      if (googlePart) {
+        hardenGoogleSession(partitionSession);
+      }
     }
     if (String(partition).includes('snapchat')) {
       try {
@@ -1462,6 +1513,9 @@ registerIpcHandlers({
   getWebviewPreloadPath: (serviceType) => {
     if (serviceType === 'snapchat') {
       return path.join(__dirname, 'snapchat-preload.js');
+    }
+    if (isGoogleServiceType(serviceType)) {
+      return path.join(__dirname, 'google-preload.js');
     }
     return path.join(__dirname, 'webview-preload.js');
   },

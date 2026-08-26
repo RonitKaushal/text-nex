@@ -990,7 +990,20 @@ export default function AvailableServices({
             >
               Cancel
             </Button>
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => void handleAddCustom()}>
+            <Button
+              type="primary"
+              className="tn-add-pill"
+              icon={<PlusOutlined />}
+              onClick={() => void handleAddCustom()}
+              style={{
+                borderRadius: 999,
+                background: '#ffffff',
+                color: '#111111',
+                border: 'none',
+                fontWeight: 600,
+                boxShadow: 'none',
+              }}
+            >
               Add Service
             </Button>
           </Flex>

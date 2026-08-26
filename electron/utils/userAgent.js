@@ -68,10 +68,7 @@ export default function userAgent() {
 export const getUserAgentForService = (serviceType = 'default') => {
   const baseUserAgent = userAgent();
 
-  // Match Electron's Chromium (strip Electron token) — Google rejects Electron UA.
-  const chromeVer = (chromeVersion || '134.0.0.0').split('.')[0] || '134';
-  const chromeDesktop =
-    `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVer}.0.0.0 Safari/537.36`;
+  const chromeDesktop = getGoogleChromeIdentity().ua;
 
   // Snapchat Web is picky — prefer latest Windows Chrome (Onsnap-compatible), no Electron markers
   const snapchatDesktop =
@@ -86,6 +83,7 @@ export const getUserAgentForService = (serviceType = 'default') => {
     'google-docs': chromeDesktop,
     'google-sheets': chromeDesktop,
     'google-slides': chromeDesktop,
+    gemini: chromeDesktop,
     excel: chromeDesktop,
     word: chromeDesktop,
     teams: chromeDesktop,

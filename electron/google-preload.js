@@ -5,6 +5,10 @@
  */
 (() => {
   try {
+    const ua = String(navigator.userAgent || '');
+    const majorMatch = ua.match(/Chrome\/(\d+)/i);
+    const major = majorMatch ? majorMatch[1] : '134';
+
     const chromeObj = {
       app: {
         isInstalled: false,
@@ -81,7 +85,7 @@
 
     try {
       Object.defineProperty(navigator, 'webdriver', {
-        get: () => undefined,
+        get: () => false,
         configurable: true,
       });
     } catch {
@@ -95,6 +99,67 @@
       delete window.module;
       delete window.exports;
       delete window.global;
+      delete window.__dirname;
+      delete window.__filename;
+    } catch {
+      /* ignore */
+    }
+
+    // Client Hints API — Google checks this vs UA string
+    try {
+      const brands = [
+        { brand: 'Google Chrome', version: major },
+        { brand: 'Chromium', version: major },
+        { brand: 'Not=A?Brand', version: '24' },
+      ];
+      const platform = /Mac/i.test(ua)
+        ? 'macOS'
+        : /Linux/i.test(ua)
+          ? 'Linux'
+          : 'Windows';
+      const uaData = {
+        brands,
+        mobile: false,
+        platform,
+        getHighEntropyValues: async (hints) => {
+          const out = {
+            brands,
+            mobile: false,
+            platform,
+            architecture: 'x86',
+            bitness: '64',
+            model: '',
+            platformVersion: platform === 'Windows' ? '15.0.0' : '14.0.0',
+            uaFullVersion: `${major}.0.0.0`,
+            fullVersionList: brands.map((b) => ({
+              brand: b.brand,
+              version: `${b.version}.0.0.0`,
+            })),
+          };
+          if (Array.isArray(hints)) {
+            const filtered = {};
+            for (const h of hints) {
+              if (h in out) filtered[h] = out[h];
+            }
+            return filtered;
+          }
+          return out;
+        },
+        toJSON: () => ({ brands, mobile: false, platform }),
+      };
+      Object.defineProperty(navigator, 'userAgentData', {
+        get: () => uaData,
+        configurable: true,
+      });
+    } catch {
+      /* ignore */
+    }
+
+    try {
+      Object.defineProperty(navigator, 'vendor', {
+        get: () => 'Google Inc.',
+        configurable: true,
+      });
     } catch {
       /* ignore */
     }
@@ -125,7 +190,7 @@
               params.name === 'camera' ||
               params.name === 'microphone')
           ) {
-            return Promise.resolve({ state: 'granted', onchange: null });
+            return Promise.resolve({ state: 'prompt', onchange: null });
           }
           return originalQuery(params);
         };
@@ -157,7 +222,5 @@
     console.warn('[google-preload] notify bridge failed', e?.message || e);
   }
 
-  try {
-    require('./passkey-frame-preload.js');
-  } catch (_) {}
+  // Do NOT load passkey-frame-preload here — Google treats broken WebAuthn as an insecure browser.
 })();

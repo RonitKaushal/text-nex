@@ -16,15 +16,20 @@ import {
 } from '../utils/notificationInject';
 import { onOpenInboxChat } from '../utils/inboxHelpers';
 
-/** Google / Microsoft workspace apps need a real Chrome UA + lighter page shields. */
-const WORKSPACE_WEB_TYPES = new Set([
+/** Google apps: Chrome UA + stealth preload (contextIsolation off so spoofing hits the page). */
+const GOOGLE_WEB_TYPES = new Set([
+  'gmail',
   'google-meet',
   'google-calendar',
-  'gmail',
   'google-drive',
   'google-docs',
   'google-sheets',
   'google-slides',
+  'gemini',
+]);
+
+/** Microsoft / Zoom workspace apps need a real Chrome UA + lighter page shields. */
+const WORKSPACE_WEB_TYPES = new Set([
   'excel',
   'word',
   'teams',
@@ -433,13 +438,15 @@ const GenericWebView: React.FC<GenericWebViewProps> = ({
       webview.setAttribute('useragent', cleanUa || userAgent);
       webview.setAttribute('partition', `persist:${service.partition}`);
       webview.setAttribute('allowpopups', 'true');
-      const isWorkspaceWeb = WORKSPACE_WEB_TYPES.has(service.iconType);
-      if (service.iconType === 'snapchat') {
-        // Snapchat rejects insecure / Electron-looking guests more often with webSecurity off
+      const isWorkspaceWeb =
+        WORKSPACE_WEB_TYPES.has(service.iconType) ||
+        GOOGLE_WEB_TYPES.has(service.iconType);
+      if (service.iconType === 'snapchat' || GOOGLE_WEB_TYPES.has(service.iconType)) {
+        // Isolation off so Chrome spoofing in guest preload is visible to page JS (Google/Snapchat)
         webview.removeAttribute('disablewebsecurity');
         webview.setAttribute(
           'webpreferences',
-          'contextIsolation=no,nodeIntegration=no,webSecurity=yes,sandbox=no'
+          'contextIsolation=no,nodeIntegration=no,webSecurity=yes,sandbox=no,backgroundThrottling=yes'
         );
         try {
           if (typeof webview.setUserAgent === 'function') {
@@ -449,7 +456,7 @@ const GenericWebView: React.FC<GenericWebViewProps> = ({
           /* ignore */
         }
       } else if (isWorkspaceWeb) {
-        // Google Meet / Calendar / Teams need secure cookies + real Chrome UA for APIs
+        // Teams / Zoom need secure cookies + real Chrome UA for APIs
         webview.removeAttribute('disablewebsecurity');
         webview.setAttribute(
           'webpreferences',
@@ -568,7 +575,9 @@ const GenericWebView: React.FC<GenericWebViewProps> = ({
         const preserveWindowOpen =
           ['instagram', 'messenger', 'facebook', 'whatsapp', 'discord', 'telegram', 'skype', 'teams', 'google-meet', 'google-calendar', 'zoom', 'snapchat'].includes(service.iconType);
         const isMessaging = MESSAGING_ICON_TYPES.includes(service.iconType);
-        const skipAdShield = WORKSPACE_WEB_TYPES.has(service.iconType);
+        const skipAdShield =
+          WORKSPACE_WEB_TYPES.has(service.iconType) ||
+          GOOGLE_WEB_TYPES.has(service.iconType);
 
         const adBlockCss = skipAdShield
           ? ''
@@ -966,8 +975,9 @@ const GenericWebView: React.FC<GenericWebViewProps> = ({
           partition={`persist:${service.partition}`}
           allowpopups="true"
           {...(webviewPreload ? { preload: webviewPreload } : {})}
-          {...(service.iconType === 'snapchat'
+          {...(service.iconType === 'snapchat' || GOOGLE_WEB_TYPES.has(service.iconType)
             ? {
+                // Isolation off so Chrome spoofing in guest preload is visible to Google's page JS
                 webpreferences:
                   'contextIsolation=no,nodeIntegration=no,webSecurity=yes,sandbox=no,backgroundThrottling=yes',
               }
