@@ -20,7 +20,7 @@ export function getMongoUserId(user) {
 }
 
 /**
- * Same rules as TextNexus AuthContext:
+ * Same rules as ArcticSwitch AuthContext:
  * - User not found / invalid JWT → force login
  * - License expired / soft 403 → keep session (do NOT bounce to login)
  */

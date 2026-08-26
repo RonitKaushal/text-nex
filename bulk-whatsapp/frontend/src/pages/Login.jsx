@@ -202,7 +202,7 @@ const Login = () => {
               letterSpacing: 0.2,
             }}
           >
-            Bulk WhatsApp · TextNexus Pro
+            Bulk WhatsApp · ArcticSwitch Pro
           </div>
         </div>
 

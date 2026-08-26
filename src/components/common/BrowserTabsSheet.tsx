@@ -207,8 +207,8 @@ export function BrowserTabsSheet({
                     border: `1.5px solid ${active ? COLORS.PRIMARY : border}`,
                     background: active
                       ? isDarkMode
-                        ? 'rgba(139, 124, 246, 0.12)'
-                        : '#f0edff'
+                        ? 'rgba(255,255,255,0.16)'
+                        : 'rgba(255,255,255,0.12)'
                       : isDarkMode
                         ? COLORS.APP_BG_ELEVATED
                         : '#fafafa',

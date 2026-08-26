@@ -199,8 +199,8 @@ export function PopoutServiceApp() {
               onClick={() => void window.electronAPI?.windowClose?.()}
               style={{ width: 42, height: '100%', borderRadius: 0, color: muted }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#e81123';
-                e.currentTarget.style.color = '#fff';
+                e.currentTarget.style.background = '#ffffff';
+                e.currentTarget.style.color = '#111111';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = 'transparent';

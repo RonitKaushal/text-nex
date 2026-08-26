@@ -49,10 +49,6 @@ export const IPC_CHANNELS = {
   LEAD_GEN_STATUS: 'lead-gen-status',
   LEAD_GEN_INSTALL: 'lead-gen-install',
   LEAD_GEN_LAUNCH: 'lead-gen-launch',
-  VOICE_SPEECH_START: 'voice-speech-start',
-  VOICE_SPEECH_STOP: 'voice-speech-stop',
-  VOICE_SPEECH_STATUS: 'voice-speech-status-query',
-  VOICE_RECOGNIZE_PCM: 'voice-recognize-pcm',
 };
 
 export const ALLOWED_INVOKE_CHANNELS = new Set([
@@ -96,8 +92,4 @@ export const ALLOWED_INVOKE_CHANNELS = new Set([
   IPC_CHANNELS.LEAD_GEN_STATUS,
   IPC_CHANNELS.LEAD_GEN_INSTALL,
   IPC_CHANNELS.LEAD_GEN_LAUNCH,
-  IPC_CHANNELS.VOICE_SPEECH_START,
-  IPC_CHANNELS.VOICE_SPEECH_STOP,
-  IPC_CHANNELS.VOICE_SPEECH_STATUS,
-  IPC_CHANNELS.VOICE_RECOGNIZE_PCM,
 ]);

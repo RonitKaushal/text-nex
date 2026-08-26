@@ -98,7 +98,7 @@ export function AppUpdateProvider({ children }: { children: ReactNode }) {
         throw new Error(result?.error || 'Download failed');
       }
       message.success(
-        'Installer downloaded and opened. Complete the setup, then restart TextNexus.'
+        'Installer downloaded and opened. Complete the setup, then restart ArcticSwitch.'
       );
       setProgress({ status: 'done', percent: 100, destPath: result.destPath });
     } catch (e) {
@@ -152,7 +152,7 @@ export function AppUpdateProvider({ children }: { children: ReactNode }) {
         message: `Update available — v${ver}`,
         description:
           result.release.title ||
-          'A new TextNexus version is ready. Open Profile to see changes and download.',
+          'A new ArcticSwitch version is ready. Open Profile to see changes and download.',
         duration: 10,
         placement: 'topRight',
         btn: undefined,

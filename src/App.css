@@ -5,8 +5,8 @@
 }
 
 .ant-layout-sider-trigger:hover {
-  background: #f0edff !important;
-  color: #8b7cf6 !important;
+  background: #111111 !important;
+  color: #ffffff !important;
 }
 
 /* Custom scrollbar — matches TextNexus dark navy chrome */
@@ -27,7 +27,7 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 124, 246, 0.45);
+  background: rgba(255,255,255,0.16);
   border: 2px solid transparent;
   background-clip: padding-box;
 }
@@ -100,7 +100,7 @@
 
 /* WhatsApp specific styles */
 .whatsapp-header {
-  background: linear-gradient(135deg, #25D366, #128C7E);
+  background: linear-gradient(135deg, #ffffff, #b0b0b0);
   color: white;
 }
 
@@ -217,7 +217,7 @@ webview {
 }
 
 .tn-dashboard section:hover {
-  border-color: rgba(200, 245, 66, 0.24) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
 }
 
 .tn-dashboard button:hover {
@@ -225,7 +225,7 @@ webview {
 }
 
 .tn-dashboard button:focus-visible {
-  outline: 2px solid #c8f542;
+  outline: 2px solid #ffffff;
   outline-offset: 3px;
 }
 
@@ -254,7 +254,7 @@ webview {
 }
 
 .ant-layout-sider::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 124, 246, 0.45);
+  background: rgba(255,255,255,0.16);
 }
 
 /* Button hover effects */
@@ -264,15 +264,5 @@ webview {
 }
 
 .ant-btn-primary:hover {
-  box-shadow: 0 4px 12px rgba(139, 124, 246, 0.4);
-}
-
-@keyframes tnVoicePulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(139, 124, 246, 0.45);
-  }
-  50% {
-    box-shadow: 0 0 0 6px rgba(139, 124, 246, 0);
-  }
+  box-shadow: 0 4px 12px rgba(255,255,255,0.16);
 }

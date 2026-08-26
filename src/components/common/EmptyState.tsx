@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Button, Typography } from 'antd';
 import { BrandLogo } from './BrandLogo';
-import { APP_NAME, APP_BG_GRADIENT, COLORS } from '../../constants';
+import { APP_NAME, COLORS } from '../../constants';
 
 const { Text } = Typography;
 
@@ -38,7 +38,7 @@ export function EmptyState({
         justifyContent: 'center',
         flexDirection: 'column',
         padding: 24,
-        background: isDarkMode ? APP_BG_GRADIENT : 'radial-gradient(circle at center, #fafafa 0%, #f0f2f5 100%)',
+        background: isDarkMode ? '#000000' : '#f5f5f5',
       }}
     >
       <div
@@ -48,11 +48,9 @@ export function EmptyState({
           borderRadius: 20,
           maxWidth: 440,
           width: '100%',
-          background: isDarkMode ? 'rgba(18, 38, 61, 0.72)' : '#fff',
-          boxShadow: isDarkMode
-            ? '0 16px 48px rgba(0,0,0,0.4)'
-            : '0 12px 40px rgba(0,0,0,0.08)',
-          border: `1px solid ${isDarkMode ? COLORS.APP_BORDER : '#f0f0f0'}`,
+          background: isDarkMode ? '#000000' : '#fff',
+          boxShadow: 'none',
+          border: `1px solid ${isDarkMode ? COLORS.APP_BORDER : '#e8e8e8'}`,
           animation: 'emptyStateIn 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       >
@@ -69,12 +67,6 @@ export function EmptyState({
               isDarkMode={isDarkMode}
               size={88}
               alt={`${APP_NAME} Logo`}
-              style={{
-                borderRadius: 22,
-                boxShadow: isDarkMode
-                  ? `0 0 28px ${COLORS.PRIMARY}44`
-                  : '0 8px 24px rgba(0,0,0,0.1)',
-              }}
             />
           </div>
         )}
@@ -109,6 +101,7 @@ export function EmptyState({
         {actionLabel && onAction && (
           <Button
             type="primary"
+            className="tn-empty-cta"
             icon={actionIcon}
             size="large"
             onClick={onAction}
@@ -117,11 +110,12 @@ export function EmptyState({
               paddingInline: 28,
               fontSize: 15,
               fontWeight: 600,
-              borderRadius: 24,
+              borderRadius: 999,
               marginTop: children ? 16 : 0,
               border: 'none',
-              background: 'linear-gradient(135deg, #a99bf8 0%, #8b7cf6 55%, #6f5ee0 100%)',
-              boxShadow: '0 6px 20px rgba(22, 119, 255, 0.4)',
+              background: '#ffffff',
+              color: '#111111',
+              boxShadow: 'none',
             }}
           >
             {actionLabel}
@@ -132,6 +126,17 @@ export function EmptyState({
         @keyframes emptyStateIn {
           from { opacity: 0; transform: translateY(18px) scale(0.98); }
           to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .tn-empty-cta.ant-btn-primary {
+          background: #ffffff !important;
+          color: #111111 !important;
+        }
+        .tn-empty-cta.ant-btn-primary:hover {
+          background: #e8e8e8 !important;
+          color: #111111 !important;
+        }
+        .tn-empty-cta.ant-btn-primary .anticon {
+          color: #111111 !important;
         }
       `}</style>
     </div>

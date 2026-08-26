@@ -80,7 +80,7 @@ function entry(logoSrc, color, url, fallbackIcon) {
 }
 
 export const SERVICE_CONFIG = {
-  whatsapp: entry(whatsappLogo, '#25D366', 'https://web.whatsapp.com'),
+  whatsapp: entry(whatsappLogo, '#ffffff', 'https://web.whatsapp.com'),
   gmail: entry(gmailLogo, '#EA4335', 'https://mail.google.com/mail/u/0/'),
   messenger: entry(messengerLogo, '#0084FF', 'https://www.messenger.com'),
   slack: entry(slackLogo, '#4A154B', 'https://slack.com'),
@@ -93,7 +93,7 @@ export const SERVICE_CONFIG = {
   movies4u: entry(movies4uIcon, '#FF6B00', 'https://movies4u.ar/'),
   hdhub4u: entry(hdhub4uIcon, '#00B4D8', 'https://hdhub4u.med/'),
   katmoviehd: entry(katmoviehdIcon, '#9B59B6', 'https://new.katmoviehd.top/'),
-  custom: entry(null, '#8b7cf6', 'https://www.google.com', React.createElement(GlobalOutlined, { style: { fontSize: '20px' } })),
+  custom: entry(null, '#ffffff', 'https://www.google.com', React.createElement(GlobalOutlined, { style: { fontSize: '20px' } })),
   facebook: entry(facebookLogo, '#1877F2', 'https://www.facebook.com'),
   instagram: entry(instagramLogo, '#E1306C', 'https://www.instagram.com'),
   snapchat: entry(snapchatLogo, '#FFFC00', 'https://web.snapchat.com'),
@@ -133,7 +133,7 @@ export const SERVICE_CONFIG = {
 export const DEFAULT_SERVICE = {
   logoSrc: null,
   icon: React.createElement(MessageOutlined, { style: { fontSize: '20px' } }),
-  color: '#8b7cf6',
+  color: '#ffffff',
   url: 'https://www.google.com',
 };
 

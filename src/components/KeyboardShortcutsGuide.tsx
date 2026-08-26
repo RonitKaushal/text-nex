@@ -123,7 +123,7 @@ export default function KeyboardShortcutsGuide({
           Keyboard shortcuts
         </Title>
         <Text style={{ color: muted, fontSize: 13 }}>
-          Quick keys to move around TextNexus. Use Ctrl+Tab like Windows Alt+Tab to jump between WhatsApp, Instagram, and other services.
+          Quick keys to move around ArcticSwitch. Use Ctrl+Tab like Windows Alt+Tab to jump between WhatsApp, Instagram, and other services.
         </Text>
       </div>
 

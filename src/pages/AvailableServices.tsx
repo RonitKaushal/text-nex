@@ -52,7 +52,7 @@ import {
 } from '../utils/customCatalog';
 import { fileToDataUrl } from '../utils/imageFile';
 import { getServiceConfig, getFaviconFromUrl } from '../utils/serviceConfig';
-import { APP_TOP_BAR_HEIGHT, APP_BG_GRADIENT, COLORS } from '../constants';
+import { APP_TOP_BAR_HEIGHT, COLORS } from '../constants';
 import type { AddServiceOptions, CatalogService, ServiceCategoryDef, SshHostConfig } from '../types';
 import { ServiceLogo } from '../components/common';
 import HostDetailsModal from '../components/HostDetailsModal';
@@ -116,7 +116,7 @@ const BUILTIN_SERVICES: DisplayService[] = (
     {
       id: 'snapchat',
       name: 'Snapchat',
-      description: 'Snapchat Web chat inside TextNexus',
+      description: 'Snapchat Web chat inside ArcticSwitch',
       category: 'social',
       iconSrc: snapchatLogo,
     },
@@ -315,13 +315,13 @@ export default function AvailableServices({
     }
     if (service.id === 'bulk-whatsapp') {
       onSelectService(service.id, service.name, { kind: 'bulk-wa' });
-      message.success(`${service.name} opened inside TextNexus`);
+      message.success(`${service.name} opened inside ArcticSwitch`);
       setSelected(null);
       return;
     }
     if (service.id === 'lead-gen') {
       onSelectService(service.id, service.name, { kind: 'lead-gen' });
-      message.success(`${service.name} opened inside TextNexus`);
+      message.success(`${service.name} opened inside ArcticSwitch`);
       setSelected(null);
       return;
     }
@@ -453,7 +453,7 @@ export default function AvailableServices({
         description: values.description?.trim() || 'Custom website',
         category: values.category,
         url,
-        color: '#8b7cf6',
+        color: '#ffffff',
         iconSrc,
         builtIn: false,
       };
@@ -486,12 +486,22 @@ export default function AvailableServices({
     });
   };
 
-  const bg = isDarkMode ? APP_BG_GRADIENT : '#f5f5f5';
-  const panel = isDarkMode ? COLORS.APP_BG_PANEL : '#fff';
+  const bg = isDarkMode ? '#000000' : '#f5f5f5';
+  const panel = isDarkMode ? '#000000' : '#fff';
   const border = isDarkMode ? COLORS.APP_BORDER : '#f0f0f0';
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: bg }}>
+    <div
+      className={`tn-available-services${isDarkMode ? ' is-dark' : ''}`}
+      style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        background: bg,
+        overflow: 'hidden',
+        minHeight: 0,
+      }}
+    >
       {/* Top bar */}
       <div
         style={{
@@ -504,7 +514,7 @@ export default function AvailableServices({
           justifyContent: 'space-between',
           gap: 16,
           flexShrink: 0,
-          background: isDarkMode ? 'rgba(18, 38, 61, 0.72)' : '#fafafa',
+          background: isDarkMode ? '#000000' : '#fafafa',
         }}
       >
         <Space>
@@ -520,15 +530,36 @@ export default function AvailableServices({
             prefix={<SearchOutlined style={{ color: token.colorTextQuaternary }} />}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ width: 260 }}
+            style={{ width: 260, borderRadius: 999 }}
           />
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setAddOpen(true)}>
+          <Button
+            type="primary"
+            className="tn-add-pill"
+            icon={<PlusOutlined />}
+            onClick={() => setAddOpen(true)}
+            style={{
+              borderRadius: 999,
+              background: '#ffffff',
+              color: '#111111',
+              border: 'none',
+              fontWeight: 600,
+              boxShadow: 'none',
+            }}
+          >
             Add
           </Button>
         </Space>
       </div>
 
-      <Layout style={{ flex: 1, background: bg, minHeight: 0 }}>
+      <Layout
+        style={{
+          flex: 1,
+          background: bg,
+          minHeight: 0,
+          height: '100%',
+          overflow: 'hidden',
+        }}
+      >
         <Sider
           width={236}
           theme={isDarkMode ? 'dark' : 'light'}
@@ -536,6 +567,7 @@ export default function AvailableServices({
             background: panel,
             borderRight: `1px solid ${border}`,
             overflow: 'auto',
+            height: '100%',
           }}
         >
           <div
@@ -597,14 +629,14 @@ export default function AvailableServices({
                     margin: 0,
                     padding: '12px 14px',
                     border: active
-                      ? `1px solid ${isDarkMode ? 'rgba(139, 124, 246, 0.35)' : 'rgba(139, 124, 246, 0.28)'}`
+                      ? `1px solid ${isDarkMode ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.16)'}`
                       : '1px solid transparent',
                     borderRadius: 10,
                     cursor: 'pointer',
                     textAlign: 'left',
                     background: active
                       ? isDarkMode
-                        ? 'rgba(139, 124, 246, 0.14)'
+                        ? 'rgba(255,255,255,0.16)'
                         : COLORS.PRIMARY_SOFT
                       : 'transparent',
                     color: active ? COLORS.PRIMARY : token.colorText,
@@ -620,7 +652,7 @@ export default function AvailableServices({
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = active
                       ? isDarkMode
-                        ? 'rgba(139, 124, 246, 0.14)'
+                        ? 'rgba(255,255,255,0.16)'
                         : COLORS.PRIMARY_SOFT
                       : 'transparent';
                   }}
@@ -670,7 +702,7 @@ export default function AvailableServices({
                           ? 'rgba(255, 255, 255, 0.1)'
                           : '#ececec',
                       color: active
-                        ? '#fff'
+                        ? '#111111'
                         : isDarkMode
                           ? 'rgba(255, 255, 255, 0.78)'
                           : '#595959',
@@ -706,7 +738,17 @@ export default function AvailableServices({
           </div>
         </Sider>
 
-        <Content style={{ padding: '16px 20px', overflow: 'auto' }}>
+        <Content
+          className="tn-available-services-content"
+          style={{
+            padding: '16px 20px',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            flex: 1,
+            minHeight: 0,
+            height: '100%',
+          }}
+        >
           <div>
             <Flex justify="space-between" align="center" style={{ marginBottom: 16 }}>
               <div>
@@ -821,9 +863,9 @@ export default function AvailableServices({
                               fontWeight: 700,
                               letterSpacing: 0.4,
                               textTransform: 'uppercase',
-                              color: proUser ? '#faad14' : '#8c8c8c',
+                              color: proUser ? '#bfbfbf' : '#8c8c8c',
                               background: proUser
-                                ? 'rgba(250, 173, 20, 0.15)'
+                                ? 'rgba(255,255,255,0.16)'
                                 : 'rgba(140,140,140,0.15)',
                               padding: '2px 6px',
                               borderRadius: 4,
@@ -1096,6 +1138,34 @@ export default function AvailableServices({
         }}
         onConnect={confirmHostConnect}
       />
+
+      <style>{`
+        .tn-add-pill.ant-btn-primary {
+          background: #ffffff !important;
+          color: #111111 !important;
+        }
+        .tn-add-pill.ant-btn-primary:hover {
+          background: #e8e8e8 !important;
+          color: #111111 !important;
+        }
+        .tn-add-pill.ant-btn-primary .anticon {
+          color: #111111 !important;
+        }
+        .tn-available-services.is-dark .ant-layout,
+        .tn-available-services.is-dark .ant-layout-sider,
+        .tn-available-services.is-dark .ant-layout-sider-dark {
+          background: #000000 !important;
+        }
+        .tn-available-services.is-dark .ant-layout-content.tn-available-services-content {
+          background: #000000 !important;
+          overflow-y: auto !important;
+          overflow-x: hidden !important;
+          min-height: 0 !important;
+        }
+        .tn-available-services .ant-layout {
+          min-height: 0 !important;
+        }
+      `}</style>
     </div>
   );
 }

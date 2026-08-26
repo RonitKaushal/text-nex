@@ -198,7 +198,7 @@ export const AuthProvider = ({ children }) => {
           if (shouldLogoutOnAuthError(apiError) || apiError?.code === 'LICENSE_APP_MISMATCH') {
             await logout();
           } else if (!apiError?.response) {
-            // Network blip: keep cached session like TextNexus
+            // Network blip: keep cached session like ArcticSwitch
             const storedUser = await storage.getUser();
             if (storedUser) {
               setUser(storedUser);

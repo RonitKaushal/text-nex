@@ -1,10 +1,10 @@
 {
-  "name": "textnexus-app",
+  "name": "arcticswitch-app",
   "private": true,
   "version": "6.1.0",
   "type": "module",
-  "description": "TextNexus - Multi-Account Messaging Application",
-  "author": "TextNexus Team",
+  "description": "ArcticSwitch - Multi-Account Messaging Application",
+  "author": "ArcticSwitch",
   "main": "electron/main.js",
   "homepage": "./",
   "scripts": {
@@ -26,8 +26,8 @@
     "generate-icons": "node scripts/generate-icons.mjs"
   },
   "build": {
-    "appId": "com.textnexus.app",
-    "productName": "TextNexus",
+    "appId": "com.arcticswitch.app",
+    "productName": "ArcticSwitch",
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "directories": {
       "output": "release",
@@ -108,7 +108,7 @@
         }
       ],
       "icon": "public/icon.ico",
-      "publisherName": "TextNexus",
+      "publisherName": "ArcticSwitch",
       "verifyUpdateCodeSignature": false
     },
     "nsis": {
@@ -118,7 +118,7 @@
       "deleteAppDataOnUninstall": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "TextNexus",
+      "shortcutName": "ArcticSwitch",
       "include": "build/installer.nsh",
       "differentialPackage": false
     },
@@ -164,7 +164,7 @@
           "path": "/Applications"
         }
       ],
-      "title": "TextNexus-${version}-${arch}",
+      "title": "ArcticSwitch-${version}-${arch}",
       "icon": "build/icon.png",
       "writeUpdateInfo": false
     },
@@ -174,8 +174,8 @@
       ],
       "icon": "public/logo.png",
       "category": "Network",
-      "executableName": "textnexus",
-      "synopsis": "TextNexus messaging hub",
+      "executableName": "arcticswitch",
+      "synopsis": "ArcticSwitch messaging hub",
       "description": "Multi-account messaging application"
     }
   },

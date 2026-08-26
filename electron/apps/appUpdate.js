@@ -16,7 +16,7 @@ export async function downloadAndInstallUpdate({ downloadUrl, version }) {
 
   const downloadsDir = app.getPath('downloads');
   const urlObj = new URL(downloadUrl);
-  const rawName = path.basename(urlObj.pathname) || `TextNexus-${version || 'update'}.exe`;
+  const rawName = path.basename(urlObj.pathname) || `ArcticSwitch-${version || 'update'}.exe`;
   const safeName = rawName.replace(/[^\w.\-() ]+/g, '_');
   const destPath = path.join(downloadsDir, safeName);
 
@@ -56,7 +56,7 @@ function downloadFile(fileUrl, destPath, onProgress) {
         url,
         {
           headers: {
-            'User-Agent': `TextNexus/${app.getVersion()}`,
+            'User-Agent': `ArcticSwitch/${app.getVersion()}`,
             Accept: '*/*',
           },
         },

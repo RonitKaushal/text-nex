@@ -70,7 +70,7 @@ export function RenewLicenseModal({
           border: `1px solid ${border}`,
           borderRadius: 20,
           boxShadow: isDarkMode
-            ? '0 0 0 1px rgba(139,124,246,0.12), 0 24px 60px rgba(0,0,0,0.5)'
+            ? '0 0 0 1px rgba(255,255,255,0.16), 0 24px 60px rgba(0,0,0,0.5)'
             : '0 16px 40px rgba(0,0,0,0.12)',
           padding: 0,
           overflow: 'hidden',
@@ -100,7 +100,7 @@ export function RenewLicenseModal({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: isDarkMode ? COLORS.APP_BG_ELEVATED : '#f0edff',
+              background: isDarkMode ? COLORS.APP_BG_ELEVATED : 'rgba(255,255,255,0.12)',
               border: `1px solid ${border}`,
               overflow: 'hidden',
             }}
@@ -137,8 +137,8 @@ export function RenewLicenseModal({
               padding: '10px 14px',
               borderRadius: 12,
               marginBottom: 18,
-              background: isDarkMode ? 'rgba(139, 124, 246, 0.08)' : '#f0edff',
-              border: `1px solid ${isDarkMode ? 'rgba(139,124,246,0.22)' : '#ddd6fe'}`,
+              background: isDarkMode ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.12)',
+              border: `1px solid ${isDarkMode ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.28)'}`,
             }}
           >
             <CalendarOutlined style={{ color: COLORS.PRIMARY }} />
@@ -202,8 +202,8 @@ export function RenewLicenseModal({
               border: 'none',
               fontWeight: 600,
               background:
-                'linear-gradient(135deg, #a99bf8 0%, #8b7cf6 55%, #6f5ee0 100%)',
-              boxShadow: '0 8px 22px rgba(22, 119, 255, 0.35)',
+                'linear-gradient(135deg, #ffffff 0%, #ffffff 55%, #b0b0b0 100%)',
+              boxShadow: '0 8px 22px rgba(255,255,255,0.16)',
             }}
           >
             Renew now

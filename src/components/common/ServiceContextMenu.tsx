@@ -47,7 +47,7 @@ export function ServiceContextMenu({
     items.push({
       key: 'reload',
       label: 'Reload Service',
-      icon: <ReloadOutlined style={{ fontSize: 15, color: '#8b7cf6' }} />,
+      icon: <ReloadOutlined style={{ fontSize: 15, color: '#ffffff' }} />,
       disabled: isDisabled,
       onClick: () => actions.onReload?.(service.id, service.name),
     });
@@ -67,9 +67,9 @@ export function ServiceContextMenu({
       key: 'toggle',
       label: isDisabled ? 'Enable Service' : 'Disable Service',
       icon: isDisabled ? (
-        <EyeOutlined style={{ fontSize: 14, color: '#52c41a' }} />
+        <EyeOutlined style={{ fontSize: 14, color: '#ffffff' }} />
       ) : (
-        <StopOutlined style={{ fontSize: 14, color: '#ff4d4f' }} />
+        <StopOutlined style={{ fontSize: 14, color: '#ffffff' }} />
       ),
       onClick: () => actions.onToggle?.(service.id, service.name, isDisabled),
     });
@@ -79,9 +79,9 @@ export function ServiceContextMenu({
     key: 'lock',
     label: service.isLocked ? 'Remove Lock' : 'Lock Service',
     icon: service.isLocked ? (
-      <UnlockOutlined style={{ fontSize: 14, color: '#52c41a' }} />
+      <UnlockOutlined style={{ fontSize: 14, color: '#ffffff' }} />
     ) : (
-      <LockOutlined style={{ fontSize: 14, color: '#8b7cf6' }} />
+      <LockOutlined style={{ fontSize: 14, color: '#ffffff' }} />
     ),
     onClick: () => {
       if (service.isLocked) actions.onRemoveLock?.(service);

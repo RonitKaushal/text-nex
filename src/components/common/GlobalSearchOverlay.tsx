@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Input, Typography } from 'antd';
 import {
   SearchOutlined,
@@ -53,6 +53,8 @@ interface GlobalSearchOverlayProps {
   onAction: (action: CommandItem & { kind: 'action' }) => void;
 }
 
+type AnchorRect = { top: number; left: number; width: number; bottom: number };
+
 export function GlobalSearchOverlay({
   open,
   workspaces,
@@ -67,8 +69,13 @@ export function GlobalSearchOverlay({
 }: GlobalSearchOverlayProps) {
   const [query, setQuery] = useState('');
   const [index, setIndex] = useState(0);
+  const [anchor, setAnchor] = useState<AnchorRect | null>(null);
+  const [ready, setReady] = useState(false);
   const inputRef = useRef<any>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const anchored = !!anchor;
 
   const items = useMemo<CommandItem[]>(() => {
     const q = query.trim().toLowerCase();
@@ -161,7 +168,6 @@ export function GlobalSearchOverlay({
       return `${a.label} ${a.hint}`.toLowerCase().includes(q);
     });
 
-    // Prefer workspaces, then services, then actions when searching
     return [
       ...workspaceItems.slice(0, 12),
       ...serviceItems.slice(0, 40),
@@ -173,12 +179,47 @@ export function GlobalSearchOverlay({
     if (!open) {
       setQuery('');
       setIndex(0);
+      setAnchor(null);
+      setReady(false);
       return;
     }
-    setIndex(0);
-    const t = window.setTimeout(() => inputRef.current?.focus?.(), 40);
-    return () => window.clearTimeout(t);
   }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+
+    const measure = () => {
+      const el = document.querySelector(
+        '[data-tn-global-search-anchor]'
+      ) as HTMLElement | null;
+      if (!el) {
+        setAnchor(null);
+        setReady(true);
+        return;
+      }
+      const r = el.getBoundingClientRect();
+      setAnchor({
+        top: r.top,
+        left: r.left,
+        width: r.width,
+        bottom: r.bottom,
+      });
+      setReady(true);
+    };
+
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    // Keep typing in the title-bar field when anchored; only focus modal input for Ctrl+K / centered mode.
+    if (!anchored) {
+      const t = window.setTimeout(() => inputRef.current?.focus?.(), 40);
+      return () => window.clearTimeout(t);
+    }
+  }, [open, anchored]);
 
   useEffect(() => {
     if (open) setQuery(initialQuery || '');
@@ -233,14 +274,14 @@ export function GlobalSearchOverlay({
     el?.scrollIntoView({ block: 'nearest' });
   }, [index]);
 
-  if (!open) return null;
+  if (!open || !ready) return null;
 
   const border = isDarkMode
     ? 'rgba(255, 255, 255, 0.14)'
     : 'rgba(0, 0, 0, 0.08)';
   const panelBg = isDarkMode
-    ? 'rgba(10, 21, 36, 0.55)'
-    : 'rgba(255, 255, 255, 0.62)';
+    ? 'rgba(14, 14, 14, 0.96)'
+    : 'rgba(255, 255, 255, 0.96)';
   const inputBg = isDarkMode
     ? 'rgba(255, 255, 255, 0.08)'
     : 'rgba(255, 255, 255, 0.72)';
@@ -254,68 +295,87 @@ export function GlobalSearchOverlay({
     borderRadius: 10,
     background: active
       ? isDarkMode
-        ? 'rgba(139, 124, 246, 0.22)'
-        : 'rgba(139, 124, 246, 0.12)'
+        ? 'rgba(255,255,255,0.16)'
+        : 'rgba(0,0,0,0.06)'
       : 'transparent',
   });
+
+  const panelWidth = anchored
+    ? Math.min(Math.max(anchor!.width, 360), Math.max(320, window.innerWidth - 24))
+    : Math.min(560, window.innerWidth * 0.92);
+
+  const panelLeft = anchored
+    ? Math.max(12, Math.min(anchor!.left, window.innerWidth - panelWidth - 12))
+    : undefined;
 
   return (
     <div
       style={{
         position: 'fixed',
-        inset: 0,
+        top: anchored ? Math.max(0, Math.floor(anchor!.bottom)) : 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         zIndex: 10050,
-        background: isDarkMode ? 'rgba(0, 8, 18, 0.42)' : 'rgba(15, 23, 42, 0.28)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        padding: '72px 24px 24px',
+        background: anchored
+          ? 'rgba(0, 0, 0, 0.28)'
+          : isDarkMode
+            ? 'rgba(0, 8, 18, 0.42)'
+            : 'rgba(15, 23, 42, 0.28)',
+        backdropFilter: anchored ? undefined : 'blur(10px)',
+        WebkitBackdropFilter: anchored ? undefined : 'blur(10px)',
+        display: anchored ? 'block' : 'flex',
+        alignItems: anchored ? undefined : 'flex-start',
+        justifyContent: anchored ? undefined : 'center',
+        padding: anchored ? 0 : '72px 24px 24px',
       }}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
+        ref={panelRef}
         style={{
-          width: 'min(560px, 92vw)',
-          maxHeight: '70vh',
+          position: anchored ? 'absolute' : 'relative',
+          top: anchored ? 8 : undefined,
+          left: panelLeft,
+          width: panelWidth,
+          maxHeight: anchored ? 'min(420px, calc(100% - 16px))' : '70vh',
           background: panelBg,
           border: `1px solid ${border}`,
-          borderRadius: 18,
+          borderRadius: 14,
           boxShadow: isDarkMode
-            ? '0 28px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08)'
-            : '0 28px 80px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.7)',
-          backdropFilter: 'blur(22px) saturate(160%)',
-          WebkitBackdropFilter: 'blur(22px) saturate(160%)',
+            ? '0 16px 48px rgba(0,0,0,0.55)'
+            : '0 16px 48px rgba(0,0,0,0.16)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
         }}
+        onMouseDown={(e) => e.stopPropagation()}
       >
-        <div style={{ padding: '14px 14px 8px' }}>
-          <Input
-            ref={inputRef}
-            size="large"
-            prefix={<SearchOutlined style={{ color: MUTED }} />}
-            placeholder="Search workspaces or services…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            allowClear
-            style={{
-              background: inputBg,
-              borderColor: border,
-              backdropFilter: 'blur(8px)',
-            }}
-          />
-          <Text
-            type="secondary"
-            style={{ display: 'block', marginTop: 8, fontSize: 12, paddingLeft: 4 }}
-          >
-            ↑↓ navigate · Enter open · Esc close · Ctrl+K
-          </Text>
-        </div>
+        {!anchored && (
+          <div style={{ padding: '14px 14px 8px' }}>
+            <Input
+              ref={inputRef}
+              size="large"
+              prefix={<SearchOutlined style={{ color: MUTED }} />}
+              placeholder="Search workspaces or services…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              allowClear
+              style={{
+                background: inputBg,
+                borderColor: border,
+              }}
+            />
+            <Text
+              type="secondary"
+              style={{ display: 'block', marginTop: 8, fontSize: 12, paddingLeft: 4 }}
+            >
+              ↑↓ navigate · Enter open · Esc close · Ctrl+K
+            </Text>
+          </div>
+        )}
 
         <div
           ref={listRef}
@@ -323,7 +383,7 @@ export function GlobalSearchOverlay({
           style={{
             flex: 1,
             overflow: 'auto',
-            padding: '4px 8px 12px',
+            padding: anchored ? '8px 8px 10px' : '4px 8px 12px',
             scrollbarWidth: 'thin',
             scrollbarColor: 'rgba(255,255,255,0.22) transparent',
           }}
@@ -338,9 +398,6 @@ export function GlobalSearchOverlay({
             .tn-global-search-scroll::-webkit-scrollbar-thumb {
               background: rgba(255, 255, 255, 0.16);
               border-radius: 999px;
-            }
-            .tn-global-search-scroll::-webkit-scrollbar-thumb:hover {
-              background: rgba(139, 124, 246, 0.45);
             }
           `}</style>
           {items.length === 0 ? (
@@ -371,7 +428,7 @@ export function GlobalSearchOverlay({
                       alignItems: 'center',
                       justifyContent: 'center',
                       background: isDarkMode
-                        ? 'rgba(139, 124, 246, 0.18)'
+                        ? 'rgba(255,255,255,0.16)'
                         : COLORS.PRIMARY_SOFT,
                       color: COLORS.PRIMARY,
                     }}

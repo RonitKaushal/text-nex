@@ -98,7 +98,7 @@ export default function WorkspaceCreator({
               alignItems: 'center',
               justifyContent: 'center',
               background: isDarkMode
-                ? 'rgba(139, 124, 246, 0.16)'
+                ? 'rgba(255,255,255,0.16)'
                 : COLORS.PRIMARY_SOFT,
               color: COLORS.PRIMARY,
               flexShrink: 0,
@@ -170,11 +170,10 @@ export default function WorkspaceCreator({
               borderRadius: 10,
               fontWeight: 600,
               border: 'none',
-              background: workspaceName.trim()
-                ? COLORS.PRIMARY_GRADIENT
-                : undefined,
+              color: workspaceName.trim() ? '#111111' : undefined,
+              background: workspaceName.trim() ? '#ffffff' : undefined,
               boxShadow: workspaceName.trim()
-                ? '0 4px 14px rgba(139, 124, 246, 0.35)'
+                ? '0 4px 14px rgba(255,255,255,0.16)'
                 : 'none',
             }}
           >
@@ -257,13 +256,13 @@ export default function WorkspaceCreator({
                   border: `1px solid ${
                     selected
                       ? isDarkMode
-                        ? 'rgba(139, 124, 246, 0.45)'
-                        : 'rgba(139, 124, 246, 0.35)'
+                        ? 'rgba(255,255,255,0.16)'
+                        : 'rgba(255,255,255,0.16)'
                       : border
                   }`,
                   background: selected
                     ? isDarkMode
-                      ? 'rgba(139, 124, 246, 0.14)'
+                      ? 'rgba(255,255,255,0.16)'
                       : COLORS.PRIMARY_SOFT
                     : isDarkMode
                       ? 'rgba(255,255,255,0.03)'

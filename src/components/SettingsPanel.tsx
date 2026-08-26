@@ -267,7 +267,7 @@ export default function SettingsPanel({
           />
           <Space direction="vertical" size={0}>
               <Text strong style={{ color: textColor }}>
-                TextNexus v{APP_VERSION}
+                ArcticSwitch v{APP_VERSION}
               </Text>
             <Text type="secondary" style={{ fontSize: 12, color: muted }}>
               Multi-Account Messaging Application

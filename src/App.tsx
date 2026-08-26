@@ -23,8 +23,6 @@ import {
 import { useAuth } from './context/AuthContext';
 import { useTheme } from './context/ThemeContext';
 import { useUnread } from './context/UnreadContext';
-import { useServiceChromeOptional } from './context/ServiceChromeContext';
-import { useVoiceControl } from './context/VoiceControlContext';
 import { useWorkspaceStore } from './hooks/useWorkspaceStore';
 import { useModal } from './hooks/useModal';
 import { APP_BG_GRADIENT, COLORS, MESSAGES, MAX_WORKSPACES } from './constants';
@@ -54,8 +52,6 @@ function AppShell() {
   } = useAuth();
 
   const { clearUnread, unreadById } = useUnread();
-  const chrome = useServiceChromeOptional();
-  const voice = useVoiceControl();
 
   const store = useWorkspaceStore({
     licenseExpired,
@@ -64,7 +60,6 @@ function AppShell() {
   });
 
   const [showWorkspaceCreator, setShowWorkspaceCreator] = useState(false);
-  const [workspaceCreatorDraftName, setWorkspaceCreatorDraftName] = useState('');
   const [accountSection, setAccountSection] = useState<AccountSection>('profile');
   const [splitView, setSplitView] = useState(false);
   /** Which panes hold which service ids (null = empty picker). */
@@ -399,7 +394,7 @@ function AppShell() {
           }}
         >
           <div style={{ textAlign: 'center', padding: 40, maxWidth: 360 }}>
-            <LockOutlined style={{ fontSize: 64, color: '#ff4d4f', marginBottom: 16 }} />
+            <LockOutlined style={{ fontSize: 64, color: '#ffffff', marginBottom: 16 }} />
             <Title
               level={4}
               style={{ color: isDarkMode ? '#fff' : undefined, marginBottom: 8 }}
@@ -490,91 +485,6 @@ function AppShell() {
   };
   const selectServiceRef = useRef(selectService);
   selectServiceRef.current = selectService;
-
-  // Voice control → workspace / service / dictate actions
-  useEffect(() => {
-    voice.registerHandlers({
-      getWorkspaces: () => store.workspaces,
-      getActiveWorkspaceId: () => store.activeWorkspace,
-      getActiveService: () =>
-        store.workspaces
-          .flatMap((w) => w.services)
-          .find((s) => s.id === store.activeTab) || null,
-      openWorkspaceById: (id) => {
-        store.setActiveWorkspace(id);
-        if (!store.workspaceDetailVisible) {
-          store.setWorkspaceDetailVisible(true);
-        }
-        store.setActiveTab('');
-      },
-      openServiceById: (id) => {
-        selectServiceRef.current(id);
-      },
-      createWorkspace: (name) => {
-        if (store.workspaces.length >= MAX_WORKSPACES) return false;
-        const ok = store.addWorkspace(name);
-        if (ok !== false) {
-          setShowWorkspaceCreator(false);
-          setWorkspaceCreatorDraftName('');
-        }
-        return ok !== false;
-      },
-      openWorkspaceCreator: () => {
-        setWorkspaceCreatorDraftName('');
-        setShowWorkspaceCreator(true);
-      },
-      setWorkspaceCreatorName: (name) => {
-        setWorkspaceCreatorDraftName(name);
-        setShowWorkspaceCreator(true);
-      },
-      openAvailableServices: () => {
-        store.setActiveTab('add-service');
-      },
-      openSettings: () => {
-        setAccountSection('settings');
-        store.setActiveTab('profile');
-      },
-      openProfile: () => {
-        setAccountSection('profile');
-        store.setActiveTab('profile');
-      },
-      openSearch: (query) => {
-        setGlobalSearchQuery(query || '');
-        setGlobalSearchOpen(true);
-      },
-      reloadActive: () => {
-        if (store.activeTab) {
-          window.electronAPI?.reloadService?.(store.activeTab);
-        }
-      },
-      goBack: () => {
-        store.setActiveTab('');
-        store.setWorkspaceDetailVisible(true);
-      },
-      insertText: async (text, send) => {
-        const active = store.workspaces
-          .flatMap((w) => w.services)
-          .find((s) => s.id === store.activeTab);
-        if (!chrome?.insertDictationText) return false;
-        return chrome.insertDictationText(text, {
-          send: !!send,
-          whatsapp: active?.iconType === 'whatsapp',
-        });
-      },
-    });
-    return () => voice.registerHandlers(null);
-  }, [
-    voice,
-    chrome,
-    store.workspaces,
-    store.activeWorkspace,
-    store.activeTab,
-    store.workspaceDetailVisible,
-    store.setActiveWorkspace,
-    store.setWorkspaceDetailVisible,
-    store.setActiveTab,
-    store.addWorkspace,
-  ]);
 
   const handleRenewLicense = async () => {
     if (!renewKey.trim()) {
@@ -821,7 +731,7 @@ function AppShell() {
         subtitle={
           isAuthenticated
             ? 'Checking your account access…'
-            : 'Preparing TextNexus…'
+            : 'Preparing ArcticSwitch…'
         }
         isDarkMode={isDarkMode}
       />
@@ -949,7 +859,7 @@ function AppShell() {
           actionLabel="Re-New"
           onAction={() => setRenewVisible(true)}
           isDarkMode={isDarkMode}
-          titleColor="#ff4d4f"
+          titleColor="#ffffff"
         >
           <Text type="secondary" style={{ fontSize: 16, display: 'block', marginBottom: 8 }}>
             Renewal Contact Us:{' '}
@@ -1098,10 +1008,8 @@ function AppShell() {
 
       <WorkspaceCreator
         visible={showWorkspaceCreator}
-        initialName={workspaceCreatorDraftName}
         onClose={() => {
           setShowWorkspaceCreator(false);
-          setWorkspaceCreatorDraftName('');
         }}
         onCreateWorkspace={(name) => {
           const ok = store.addWorkspace(name);
@@ -1110,7 +1018,6 @@ function AppShell() {
             return;
           }
           setShowWorkspaceCreator(false);
-          setWorkspaceCreatorDraftName('');
         }}
         isDarkMode={isDarkMode}
       />

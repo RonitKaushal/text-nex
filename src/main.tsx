@@ -7,7 +7,6 @@ import { AppUpdateProvider } from './context/AppUpdateContext';
 import { UnreadProvider } from './context/UnreadContext';
 import { InboxProvider } from './context/InboxContext';
 import { ServiceChromeProvider } from './context/ServiceChromeContext';
-import { VoiceControlProvider } from './context/VoiceControlContext';
 import { ErrorBoundary, PopoutServiceApp } from './components/common';
 import './index.css';
 
@@ -28,11 +27,9 @@ createRoot(document.getElementById('root')!).render(
             <AppUpdateProvider>
               <UnreadProvider>
                 <InboxProvider>
-                <ServiceChromeProvider>
-                  <VoiceControlProvider>
+                  <ServiceChromeProvider>
                     <App />
-                  </VoiceControlProvider>
-                </ServiceChromeProvider>
+                  </ServiceChromeProvider>
                 </InboxProvider>
               </UnreadProvider>
             </AppUpdateProvider>

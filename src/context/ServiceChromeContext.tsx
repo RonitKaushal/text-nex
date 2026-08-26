@@ -11,7 +11,6 @@ import {
   type SetStateAction,
 } from 'react';
 import type { BrowserTabItem } from '../types/browserTab';
-import { insertTextIntoWebview } from '../utils/insertTextIntoWebview';
 
 /** Max in-app browser tabs per service (home + extras). */
 export const MAX_BROWSER_TABS = 6;
@@ -38,11 +37,6 @@ interface ServiceChromeContextValue {
   stopFindInPage: () => void;
   clearServiceChrome: () => void;
   registerServiceHome: (serviceId: string, url: string, title: string) => void;
-  /** Insert (and optionally send) text into the active guest compose box. */
-  insertDictationText: (
-    text: string,
-    options?: { send?: boolean; whatsapp?: boolean }
-  ) => Promise<boolean>;
 }
 
 const ServiceChromeContext = createContext<ServiceChromeContextValue | null>(null);
@@ -276,16 +270,6 @@ export function ServiceChromeProvider({ children }: { children: ReactNode }) {
     }
   }, [webviewRef]);
 
-  const insertDictationText = useCallback(
-    async (
-      text: string,
-      options?: { send?: boolean; whatsapp?: boolean }
-    ) => {
-      return insertTextIntoWebview(webviewRef?.current, text, options);
-    },
-    [webviewRef]
-  );
-
   const value = useMemo(
     () => ({
       browserTabs,
@@ -303,7 +287,6 @@ export function ServiceChromeProvider({ children }: { children: ReactNode }) {
       stopFindInPage,
       clearServiceChrome,
       registerServiceHome,
-      insertDictationText,
     }),
     [
       browserTabs,
@@ -321,7 +304,6 @@ export function ServiceChromeProvider({ children }: { children: ReactNode }) {
       stopFindInPage,
       clearServiceChrome,
       registerServiceHome,
-      insertDictationText,
     ]
   );
 

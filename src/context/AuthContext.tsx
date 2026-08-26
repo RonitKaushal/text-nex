@@ -30,6 +30,8 @@ interface AuthContextValue {
   /** Refresh profile without blocking the whole app behind the license splash. */
   refreshProfile: (force?: boolean) => Promise<UserProfile | null>;
   handleLoginSuccess: () => Promise<void>;
+  /** Clear session and return to the login screen. */
+  logout: () => Promise<void>;
   setLicenseExpired: (value: boolean) => void;
   renewLicense: (licenseKey: string) => Promise<{
     success: boolean;
@@ -411,6 +413,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       checkLicenseStatus,
       refreshProfile,
       handleLoginSuccess,
+      logout: forceLogoutToLogin,
       setLicenseExpired,
       renewLicense,
     }),
@@ -424,6 +427,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       checkLicenseStatus,
       refreshProfile,
       handleLoginSuccess,
+      forceLogoutToLogin,
       setLicenseExpired,
       renewLicense,
     ]

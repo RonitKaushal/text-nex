@@ -11,6 +11,7 @@ export { ServiceContextMenu } from './ServiceContextMenu';
 export { EditServiceModal } from './EditServiceModal';
 export type { BrowserTabItem } from '../../types/browserTab';
 export { AppTitleBar } from './AppTitleBar';
+export { WindowChromeBar } from './WindowChromeBar';
 export { PopoutServiceApp } from './PopoutServiceApp';
 export { WorkspaceSwitcherSheet } from './WorkspaceSwitcherSheet';
 export { BrowserTabsSheet } from './BrowserTabsSheet';

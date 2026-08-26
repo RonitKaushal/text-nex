@@ -16,9 +16,7 @@ import {
   FullscreenExitOutlined,
   CopyOutlined,
   UpOutlined,
-  CalendarOutlined,
   SearchOutlined,
-  AudioOutlined,
   InboxOutlined,
 } from '@ant-design/icons';
 import { Button, Space, Tooltip, Typography, Popover, message, Input } from 'antd';
@@ -27,9 +25,6 @@ import { WorkspaceSwitcherSheet } from './WorkspaceSwitcherSheet';
 import { BrowserTabsSheet } from './BrowserTabsSheet';
 import { APP_TOP_BAR_HEIGHT, APP_SIDEBAR_BG, COLORS } from '../../constants';
 import { MAX_BROWSER_TABS } from '../../context/ServiceChromeContext';
-import { useAuth } from '../../context/AuthContext';
-import { useVoiceControlOptional } from '../../context/VoiceControlContext';
-import { isLicenseExpired } from '../../utils/licenseStatus';
 import {
   SPLIT_LAYOUTS,
   previewStyleForLayout,
@@ -105,8 +100,6 @@ export function AppTitleBar({
   searchOpen = false,
   onOpenInbox,
 }: AppTitleBarProps) {
-  const { userProfile, licenseExpired } = useAuth();
-  const voice = useVoiceControlOptional();
   const inbox = useInboxOptional();
   const [maximized, setMaximized] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
@@ -132,19 +125,6 @@ export function AppTitleBar({
       activeService.iconType === 'ssh-server');
   const hasMultipleTabs = browserTabs.length > 1;
   const atTabLimit = browserTabs.length >= MAX_BROWSER_TABS;
-
-  const expireAt = userProfile?.activeLicense?.expireAt;
-  const expired = licenseExpired || isLicenseExpired(userProfile);
-  const expiryShort = expireAt
-    ? new Date(expireAt).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      })
-    : null;
-  const daysLeft = expireAt
-    ? Math.max(0, Math.ceil((new Date(expireAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
-    : null;
 
   const iconBtnStyle: CSSProperties = {
     color: isDarkMode ? '#c8cdd3' : '#595959',
@@ -226,26 +206,11 @@ export function AppTitleBar({
         ...drag,
       }}
     >
-      <div
-        style={{
-          width: 46,
-          height: 46,
-          borderRadius: 11,
-          background: isDarkMode ? COLORS.APP_BG_ELEVATED : '#fff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          overflow: 'hidden',
-          ...noDrag,
-        }}
-      >
-        <BrandLogo
-          isDarkMode={isDarkMode}
-          size={40}
-          style={{ borderRadius: 9 }}
-        />
-      </div>
+      <BrandLogo
+        isDarkMode={isDarkMode}
+        size={40}
+        style={{ flexShrink: 0, ...noDrag }}
+      />
 
       <Button
         type="text"
@@ -258,8 +223,8 @@ export function AppTitleBar({
           height: 34,
           background: workspaceSheetOpen
             ? isDarkMode
-              ? 'rgba(139, 124, 246, 0.12)'
-              : '#f0edff'
+              ? 'rgba(255,255,255,0.16)'
+              : 'rgba(255,255,255,0.12)'
             : 'transparent',
           ...noDrag,
         }}
@@ -280,10 +245,12 @@ export function AppTitleBar({
       <div style={{ width: 1, height: 22, background: border, flexShrink: 0 }} />
 
       <div
+        data-tn-global-search-anchor
         style={{
           flex: '0 1 360px',
           maxWidth: 360,
           minWidth: 160,
+          position: 'relative',
           ...noDrag,
         }}
       >
@@ -382,8 +349,8 @@ export function AppTitleBar({
               height: 34,
               background: tabsSheetOpen
                 ? isDarkMode
-                  ? 'rgba(139, 124, 246, 0.12)'
-                  : '#f0edff'
+                  ? 'rgba(255,255,255,0.16)'
+                  : 'rgba(255,255,255,0.12)'
                 : 'transparent',
               ...noDrag,
             }}
@@ -400,47 +367,6 @@ export function AppTitleBar({
           </Button>
         )}
       </div>
-
-      {expiryShort && (
-        <div
-          style={{
-            ...noDrag,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            height: 28,
-            padding: '0 10px',
-            marginRight: 8,
-            borderRadius: 999,
-            fontSize: 12,
-            fontWeight: 500,
-            flexShrink: 0,
-            color: expired ? '#ff7875' : daysLeft != null && daysLeft <= 7 ? '#faad14' : isDarkMode ? '#9fdb9f' : '#389e0d',
-            background: expired
-              ? 'rgba(255, 77, 79, 0.12)'
-              : daysLeft != null && daysLeft <= 7
-                ? 'rgba(250, 173, 20, 0.12)'
-                : isDarkMode
-                  ? 'rgba(82, 196, 26, 0.12)'
-                  : '#f6ffed',
-            border: `1px solid ${
-              expired
-                ? 'rgba(255, 77, 79, 0.35)'
-                : daysLeft != null && daysLeft <= 7
-                  ? 'rgba(250, 173, 20, 0.35)'
-                  : isDarkMode
-                    ? 'rgba(82, 196, 26, 0.3)'
-                    : '#b7eb8f'
-            }`,
-          }}
-          title={expired ? 'License expired' : `License expires ${expiryShort}`}
-        >
-          <CalendarOutlined />
-          {expired
-            ? 'License expired'
-            : `Expires ${expiryShort}${daysLeft != null && daysLeft > 0 ? ` · ${daysLeft}d` : ''}`}
-        </div>
-      )}
 
       {isServiceView && (
         <Button
@@ -463,8 +389,9 @@ export function AppTitleBar({
             fontSize: 13,
             border: 'none',
             opacity: atTabLimit ? 0.55 : 1,
-            background: 'linear-gradient(135deg, #a99bf8 0%, #8b7cf6 55%, #6f5ee0 100%)',
-            boxShadow: atTabLimit ? 'none' : '0 2px 8px rgba(22, 119, 255, 0.45)',
+            color: '#111111',
+            background: '#ffffff',
+            boxShadow: atTabLimit ? 'none' : '0 2px 8px rgba(255,255,255,0.16)',
           }}
         >
           {isWhatsApp ? 'New Chat' : isSshService ? 'New Terminal' : 'New Tab'}
@@ -490,8 +417,8 @@ export function AppTitleBar({
                     : iconBtnStyle.color,
                 background: inboxActive
                   ? isDarkMode
-                    ? 'rgba(139, 124, 246, 0.18)'
-                    : 'rgba(139, 124, 246, 0.12)'
+                    ? 'rgba(255,255,255,0.16)'
+                    : 'rgba(255,255,255,0.16)'
                   : 'transparent',
               }}
               aria-label="Unread inbox"
@@ -506,8 +433,8 @@ export function AppTitleBar({
                   height: 16,
                   padding: '0 4px',
                   borderRadius: 999,
-                  background: '#e81123',
-                  color: '#fff',
+                  background: '#ffffff',
+                  color: '#111111',
                   fontSize: 10,
                   fontWeight: 700,
                   lineHeight: '16px',
@@ -520,39 +447,6 @@ export function AppTitleBar({
             )}
           </span>
         </Tooltip>
-        {voice && (
-          <Tooltip
-            title={
-              voice.isListening
-                ? voice.interimText
-                  ? `Listening… ${voice.interimText}`
-                  : 'Listening… say "Open WhatsApp" or "Type hello" (Ctrl+Shift+Space)'
-                : 'Voice control (Ctrl+Shift+Space) — open services, create workspaces, dictate'
-            }
-          >
-            <Button
-              type="text"
-              icon={<AudioOutlined />}
-              onClick={() => voice.toggleListening()}
-              style={{
-                ...iconBtnStyle,
-                color: voice.isListening ? COLORS.PRIMARY : iconBtnStyle.color,
-                background: voice.isListening
-                  ? isDarkMode
-                    ? 'rgba(139, 124, 246, 0.18)'
-                    : 'rgba(139, 124, 246, 0.12)'
-                  : 'transparent',
-                boxShadow: voice.isListening
-                  ? `0 0 0 2px ${COLORS.PRIMARY}55`
-                  : undefined,
-                animation: voice.isListening
-                  ? 'tnVoicePulse 1.4s ease-in-out infinite'
-                  : undefined,
-              }}
-              aria-label={voice.isListening ? 'Stop voice control' : 'Start voice control'}
-            />
-          </Tooltip>
-        )}
         <Tooltip title={notificationsEnabled ? 'Mute notifications' : 'Enable notifications'}>
           <Button
             type="text"
@@ -740,8 +634,8 @@ export function AppTitleBar({
             onClick={() => void window.electronAPI?.windowClose?.()}
             style={{ width: 46, height: '100%', borderRadius: 0, color: muted }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#e81123';
-              e.currentTarget.style.color = '#fff';
+              e.currentTarget.style.background = '#ffffff';
+              e.currentTarget.style.color = '#111111';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent';

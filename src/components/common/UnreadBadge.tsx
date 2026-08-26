@@ -31,8 +31,8 @@ export function UnreadBadge({
         height: isSm ? 16 : 20,
         padding: label.length > 1 ? (isSm ? '0 4px' : '0 5px') : 0,
         borderRadius: 999,
-        background: '#e53935',
-        color: '#ffffff',
+        background: '#ffffff',
+        color: '#111111',
         fontSize: isSm ? 10 : 11,
         fontWeight: 800,
         fontFamily:

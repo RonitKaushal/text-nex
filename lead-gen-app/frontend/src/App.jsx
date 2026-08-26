@@ -39,7 +39,7 @@ import {
 } from '@ant-design/icons';
 import { theme } from 'antd';
 
-/** Same API base as TextNexus */
+/** Same API base as ArcticSwitch */
 const TEXTNEXUS_API = (import.meta.env.VITE_API_URL || 'https://api.textnexus.in/api').replace(/\/$/, '');
 const LOCAL_API = 'http://127.0.0.1:39678/api';
 const DEFAULT_LOCATION = 'Ahmedabad, Gujarat, India';
@@ -106,7 +106,7 @@ const LOGIN_FEATURES = [
   {
     icon: <AppstoreOutlined />,
     title: 'Campaigns synced',
-    body: 'Campaigns and leads sync with the same TextNexus server.',
+    body: 'Campaigns and leads sync with the same ArcticSwitch server.',
   },
   {
     icon: <SyncOutlined />,
@@ -370,7 +370,7 @@ function KeyLogin({ onLogin }) {
               letterSpacing: 0.2,
             }}
           >
-            Lead Gen · TextNexus Pro
+            Lead Gen · ArcticSwitch Pro
           </div>
         </div>
 
@@ -587,7 +587,7 @@ function LeadGeneratePage({ user }) {
   };
 
   const refreshAccessToken = async () => {
-    // TextNexus tokens typically don't use /auth/refresh — skip soft-fail
+    // ArcticSwitch tokens typically don't use /auth/refresh — skip soft-fail
     return null;
   };
 

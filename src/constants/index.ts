@@ -1,4 +1,4 @@
-export const APP_NAME = 'TextNexus';
+export const APP_NAME = 'ArcticSwitch';
 export const APP_VERSION = '6.1.0';
 
 export const API_BASE_URL = (
@@ -20,31 +20,33 @@ export const STORAGE_KEYS = {
   NOTIFICATIONS_ENABLED: 'notificationsEnabled',
   NOTIFICATIONS_AFTER_CLOSE: 'notificationsAfterClose',
   DISABLED_SERVICES: 'disabledServices',
+  USERNAME: 'arcticswitch_username',
 } as const;
 
 export const MESSAGES = {
-  LOADING_APP: 'Starting TextNexus',
+  LOADING_APP: 'Starting ArcticSwitch',
   VERIFYING_LICENSE: 'Verifying your license',
   NETWORK_ISSUE_TITLE: 'Can’t reach the server',
   NETWORK_ISSUE_BODY:
-    'TextNexus couldn’t verify your license right now. Check your internet connection, then try again.',
+    'ArcticSwitch couldn’t verify your license right now. Check your internet connection, then try again.',
   LICENSE_EXPIRED_TITLE: 'License Expired',
   LICENSE_EXPIRED_BODY:
-    'Your license has expired. Please renew your license to continue using TextNexus services. All services have been disabled until renewal.',
-  WELCOME_TITLE: 'Welcome to TextNexus',
+    'Your license has expired. Please renew your license to continue using ArcticSwitch services. All services have been disabled until renewal.',
+  WELCOME_TITLE: 'Welcome to ArcticSwitch',
   LOGIN_SUCCESS: 'Login successful!',
   LOGIN_FAILED: 'Login failed. Invalid credentials.',
 } as const;
 
 export const COLORS = {
-  PRIMARY: '#8b7cf6',
-  /** Soft fill for light mode hover / selected states. */
-  PRIMARY_SOFT: '#f0edff',
-  /** Soft border for light mode focus / selected states. */
-  PRIMARY_SOFT_BORDER: '#ddd6fe',
-  PRIMARY_GRADIENT:
-    'linear-gradient(135deg, #a99bf8 0%, #8b7cf6 55%, #6f5ee0 100%)',
-  WHATSAPP: '#25D366',
+  /** Accent — white on dark chrome (use accentColor() when light mode matters). */
+  PRIMARY: '#ffffff',
+  /** Soft fill for hover / selected states. */
+  PRIMARY_SOFT: 'rgba(255, 255, 255, 0.12)',
+  /** Soft border for focus / selected states. */
+  PRIMARY_SOFT_BORDER: 'rgba(255, 255, 255, 0.28)',
+  PRIMARY_GRADIENT: 'linear-gradient(135deg, #ffffff 0%, #d9d9d9 55%, #b0b0b0 100%)',
+  /** Kept for legacy imports — monochrome only. */
+  WHATSAPP: '#ffffff',
   /** Solid black dark theme. */
   APP_BG_BASE: '#000000',
   APP_BG_GLOW: '#111111',
@@ -54,6 +56,24 @@ export const COLORS = {
   APP_BORDER: '#2a2a2a',
   APP_ICON_BTN: 'rgba(255, 255, 255, 0.08)',
 } as const;
+
+/** Primary accent that stays readable in dark and light chrome. */
+export const accentColor = (isDarkMode: boolean) => (isDarkMode ? '#ffffff' : '#111111');
+
+/** Soft accent fill for dark/light chrome. */
+export const accentSoft = (isDarkMode: boolean) =>
+  isDarkMode ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.06)';
+
+/** Soft accent border for dark/light chrome. */
+export const accentSoftBorder = (isDarkMode: boolean) =>
+  isDarkMode ? 'rgba(255, 255, 255, 0.28)' : 'rgba(0, 0, 0, 0.18)';
+
+/** Primary button fill — solid B/W, no colored gradients. */
+export const accentButtonBg = (isDarkMode: boolean) => (isDarkMode ? '#ffffff' : '#111111');
+
+/** Text on primary buttons. */
+export const accentButtonFg = (isDarkMode: boolean) => (isDarkMode ? '#111111' : '#ffffff');
+
 
 /** App UI font — Gilroy with sensible system fallbacks. */
 export const FONT_FAMILY =

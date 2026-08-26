@@ -82,8 +82,8 @@ export function ErrorState({
           height: 480,
           borderRadius: '50%',
           background: isDarkMode
-            ? 'radial-gradient(circle, rgba(250, 173, 20, 0.12) 0%, transparent 68%)'
-            : 'radial-gradient(circle, rgba(250, 173, 20, 0.14) 0%, transparent 68%)',
+            ? 'radial-gradient(circle, rgba(255,255,255,0.16) 0%, transparent 68%)'
+            : 'radial-gradient(circle, rgba(255,255,255,0.16) 0%, transparent 68%)',
           top: '38%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
@@ -138,9 +138,9 @@ export function ErrorState({
             alignItems: 'center',
             justifyContent: 'center',
             background: isDarkMode
-              ? 'rgba(250, 173, 20, 0.12)'
-              : 'rgba(250, 173, 20, 0.16)',
-            border: `1px solid ${isDarkMode ? 'rgba(250, 173, 20, 0.28)' : 'rgba(250, 173, 20, 0.35)'}`,
+              ? 'rgba(255,255,255,0.16)'
+              : 'rgba(255,255,255,0.16)',
+            border: `1px solid ${isDarkMode ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.16)'}`,
             position: 'relative',
             animation: 'errorIconPulse 2.8s ease-in-out infinite',
           }}
@@ -148,7 +148,7 @@ export function ErrorState({
           <WifiOutlined
             style={{
               fontSize: 30,
-              color: '#faad14',
+              color: '#bfbfbf',
             }}
           />
           <span
@@ -161,13 +161,13 @@ export function ErrorState({
               height: 18,
               borderRadius: '50%',
               background: isDarkMode ? COLORS.APP_BG_ELEVATED : '#fff',
-              border: '2px solid #faad14',
+              border: '2px solid #bfbfbf',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 11,
               fontWeight: 700,
-              color: '#faad14',
+              color: '#bfbfbf',
               lineHeight: 1,
             }}
           >
@@ -258,9 +258,10 @@ export function ErrorState({
               borderRadius: 12,
               fontWeight: 600,
               fontSize: 15,
-              background: COLORS.PRIMARY,
-              borderColor: COLORS.PRIMARY,
-              boxShadow: `0 8px 24px ${COLORS.PRIMARY}40`,
+              color: '#111111',
+              background: '#ffffff',
+              borderColor: '#ffffff',
+              boxShadow: '0 8px 24px rgba(255,255,255,0.16)',
             }}
           >
             {retrying ? 'Checking connection…' : retryLabel}

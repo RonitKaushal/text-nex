@@ -177,7 +177,7 @@ function ConnectLoader({
             </div>
           </div>
 
-          <Text style={{ color: error ? '#ff7875' : 'rgba(255,255,255,0.75)', fontSize: 15 }}>
+          <Text style={{ color: error ? '#d9d9d9' : 'rgba(255,255,255,0.75)', fontSize: 15 }}>
             {error || statusText || 'Connecting to server…'}
           </Text>
           {error ? (

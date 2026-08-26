@@ -1,17 +1,17 @@
 import React, { useMemo, useState, type CSSProperties } from 'react';
 import { Button, Form, Input, message } from 'antd';
 import {
-  AppstoreOutlined,
   CheckCircleFilled,
   KeyOutlined,
-  MessageOutlined,
   PhoneOutlined,
-  SyncOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import auth from '../utils/auth';
 import { userApi } from '../api/userApi';
-import { BrandLogo } from '../components/common';
-import { APP_NAME, APP_BG_GRADIENT, COLORS, MESSAGES } from '../constants';
+import { WindowChromeBar } from '../components/common';
+import { FONT_FAMILY, MESSAGES } from '../constants';
+import { setStoredUsername, getStoredUsername } from '../utils/username';
+import arcticSwitchLogo from '../assets/arctic-switch-login.png';
 
 interface LoginProps {
   onSwitchTab?: (tab: string) => void;
@@ -20,53 +20,39 @@ interface LoginProps {
 
 type LicenseStatus = 'idle' | 'valid' | 'invalid';
 
-const FEATURES = [
-  {
-    icon: <AppstoreOutlined />,
-    title: 'All your services',
-    body: 'WhatsApp, Instagram, Gmail and more — one workspace.',
-  },
-  {
-    icon: <MessageOutlined />,
-    title: 'Stay in the loop',
-    body: 'Desktop notifications so you never miss a message.',
-  },
-  {
-    icon: <SyncOutlined />,
-    title: 'Switch instantly',
-    body: 'Jump between accounts and workspaces in a click.',
-  },
-] as const;
-
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [licenseStatus, setLicenseStatus] = useState<LicenseStatus>('idle');
   const [licenseError, setLicenseError] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    const existing = getStoredUsername();
+    if (existing) {
+      form.setFieldsValue({ username: existing });
+    }
+  }, [form]);
+
   const licenseBorder = useMemo(() => {
-    if (licenseStatus === 'valid') return '#52c41a';
-    if (licenseStatus === 'invalid') return '#ff4d4f';
-    return 'rgba(255,255,255,0.18)';
+    if (licenseStatus === 'valid') return '#ffffff';
+    if (licenseStatus === 'invalid') return '#ffffff';
+    return 'rgba(255,255,255,0.2)';
   }, [licenseStatus]);
 
-  const licenseGlow =
-    licenseStatus === 'valid'
-      ? '0 0 0 3px rgba(82, 196, 26, 0.22)'
-      : licenseStatus === 'invalid'
-        ? '0 0 0 3px rgba(255, 77, 79, 0.18)'
-        : 'none';
-
   const fieldStyle: CSSProperties = {
-    height: 48,
-    borderRadius: 12,
-    background: 'rgba(8, 16, 28, 0.65)',
-    border: '1.5px solid rgba(255,255,255,0.18)',
-    color: '#f0f4f8',
+    height: 50,
+    borderRadius: 999,
+    background: '#111111',
+    border: '1px solid rgba(255,255,255,0.16)',
+    color: '#f5f5f5',
     boxShadow: 'none',
   };
 
-  const onFinish = async (values: { phone: string; licenseKey: string }) => {
+  const onFinish = async (values: {
+    username: string;
+    phone: string;
+    licenseKey: string;
+  }) => {
     setLoading(true);
     setLicenseStatus('idle');
     setLicenseError(null);
@@ -102,6 +88,9 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           }
         }
 
+        // Only the display name is stored locally (not sent to the API)
+        setStoredUsername(values.username.trim());
+
         setLicenseStatus('valid');
         message.success(MESSAGES.LOGIN_SUCCESS);
         window.setTimeout(() => {
@@ -126,324 +115,287 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
   return (
     <div
+      className="tn-login"
       style={{
         minHeight: '100vh',
         width: '100%',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: APP_BG_GRADIENT,
-        padding: '32px 24px',
-        position: 'relative',
-        overflow: 'hidden',
+        flexDirection: 'column',
+        background: '#000000',
         boxSizing: 'border-box',
+        fontFamily: FONT_FAMILY,
+        color: '#ffffff',
       }}
     >
-      {/* Ambient glow */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          width: 560,
-          height: 560,
-          borderRadius: '50%',
-          background:
-            'radial-gradient(circle, rgba(139,124,246,0.16) 0%, transparent 68%)',
-          top: '28%',
-          left: '38%',
-          transform: 'translate(-50%, -50%)',
-          pointerEvents: 'none',
-        }}
-      />
+      <WindowChromeBar isDarkMode />
 
       <div
-        className="login-shell"
         style={{
-          position: 'relative',
-          zIndex: 1,
-          width: '100%',
-          maxWidth: 1040,
-          display: 'grid',
-          gridTemplateColumns: '1.05fr 0.95fr',
-          gap: 48,
+          flex: 1,
+          display: 'flex',
           alignItems: 'center',
+          justifyContent: 'center',
+          padding: '40px 24px',
+          boxSizing: 'border-box',
+          minHeight: 0,
+          overflow: 'auto',
         }}
       >
-        {/* Left brand column */}
-        <div className="login-brand" style={{ padding: '8px 12px' }}>
-          <BrandLogo
-            isDarkMode
-            size={64}
+      <div
+        className="tn-login-panel"
+        style={{
+          width: '100%',
+          maxWidth: 520,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'stretch',
+          animation: 'tnLoginIn 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            marginBottom: 40,
+          }}
+        >
+          <img
+            src={arcticSwitchLogo}
+            alt="Arctic Switch"
             style={{
-              borderRadius: 16,
+              width: '100%',
+              maxWidth: 480,
+              height: 'auto',
+              display: 'block',
+              objectFit: 'contain',
+              objectPosition: 'center',
               marginBottom: 28,
-              boxShadow: `0 0 36px ${COLORS.PRIMARY}44`,
+              animation: 'tnLoginLogo 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
             }}
           />
-
           <h1
             style={{
               margin: 0,
-              fontSize: 'clamp(32px, 4vw, 44px)',
+              fontSize: 'clamp(28px, 5vw, 36px)',
               fontWeight: 700,
               lineHeight: 1.15,
               letterSpacing: '-0.03em',
-              color: '#fff',
+              color: '#ffffff',
             }}
           >
-            All your messaging.
-            <br />
-            <span style={{ fontWeight: 500, color: 'rgba(255,255,255,0.78)' }}>
-              One app.
-            </span>
+            Sign in to continue
           </h1>
-
-          <div
-            className="login-features"
-            style={{ marginTop: 36, display: 'flex', flexDirection: 'column', gap: 18 }}
-          >
-            {FEATURES.map((f) => (
-              <div
-                key={f.title}
-                style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}
-              >
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    flexShrink: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: COLORS.APP_BG_ELEVATED,
-                    border: `1px solid ${COLORS.APP_BORDER}`,
-                    color: COLORS.PRIMARY,
-                    fontSize: 16,
-                  }}
-                >
-                  {f.icon}
-                </div>
-                <div>
-                  <div
-                    style={{
-                      color: '#f0f4f8',
-                      fontWeight: 600,
-                      fontSize: 15,
-                      marginBottom: 2,
-                    }}
-                  >
-                    {f.title}
-                  </div>
-                  <div style={{ color: '#9aa8b8', fontSize: 13, lineHeight: 1.45 }}>
-                    {f.body}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div
+          <p
             style={{
-              marginTop: 40,
-              fontSize: 12,
-              color: 'rgba(255,255,255,0.38)',
-              letterSpacing: 0.2,
+              margin: '12px 0 0',
+              fontSize: 15,
+              lineHeight: 1.5,
+              color: 'rgba(255,255,255,0.5)',
+              maxWidth: 320,
             }}
           >
-            {APP_NAME} · Secure multi-service workspace
-          </div>
+            Enter your username, phone, and license key to open your workspace.
+          </p>
         </div>
 
-        {/* Right form card */}
-        <div
-          className="login-card"
-          style={{
-            background: 'rgba(12, 24, 40, 0.72)',
-            border: `1px solid ${COLORS.APP_BORDER}`,
-            borderRadius: 22,
-            padding: '36px 32px 32px',
-            boxShadow:
-              '0 0 0 1px rgba(139,124,246,0.12), 0 24px 60px rgba(0,0,0,0.45), 0 0 80px rgba(139,124,246,0.08)',
-            backdropFilter: 'blur(14px)',
-            animation: 'loginCardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1)',
+        <Form
+          form={form}
+          name="login"
+          onFinish={onFinish}
+          layout="vertical"
+          requiredMark={false}
+          onValuesChange={(changed) => {
+            if ('licenseKey' in changed && licenseStatus !== 'idle') {
+              setLicenseStatus('idle');
+              setLicenseError(null);
+            }
           }}
         >
-          <div style={{ marginBottom: 28 }}>
-            <div
-              style={{
-                fontSize: 24,
-                fontWeight: 700,
-                color: '#fff',
-                letterSpacing: '-0.02em',
-                marginBottom: 8,
-              }}
-            >
-              Get started
-            </div>
-            <div style={{ fontSize: 14, color: '#9aa8b8', lineHeight: 1.5 }}>
-              Enter your phone number and license key to access {APP_NAME}.
-            </div>
-          </div>
-
-          <Form
-            form={form}
-            name="login"
-            onFinish={onFinish}
-            layout="vertical"
-            requiredMark={false}
-            onValuesChange={(changed) => {
-              if ('licenseKey' in changed && licenseStatus !== 'idle') {
-                setLicenseStatus('idle');
-                setLicenseError(null);
-              }
-            }}
-          >
-            <Form.Item
-              name="phone"
-              label={
-                <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 500 }}>
-                  Phone
-                </span>
-              }
-              rules={[{ required: true, message: 'Please enter your phone number' }]}
-              style={{ marginBottom: 18 }}
-            >
-              <Input
-                size="large"
-                placeholder="Your phone number"
-                prefix={<PhoneOutlined style={{ color: '#7a8796' }} />}
-                style={fieldStyle}
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="licenseKey"
-              label={
-                <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 500 }}>
-                  License key
-                </span>
-              }
-              rules={[{ required: true, message: 'Please enter your license key' }]}
-              validateStatus={
-                licenseStatus === 'invalid'
-                  ? 'error'
-                  : licenseStatus === 'valid'
-                    ? 'success'
-                    : undefined
-              }
-              help={
-                licenseStatus === 'invalid'
-                  ? licenseError
-                  : licenseStatus === 'valid'
-                    ? 'License verified'
-                    : undefined
-              }
-              style={{ marginBottom: 8 }}
-            >
-              <Input
-                size="large"
-                placeholder="XXXX-XXXX-XXXX-XXXX"
-                prefix={
-                  licenseStatus === 'valid' ? (
-                    <CheckCircleFilled style={{ color: '#52c41a' }} />
-                  ) : (
-                    <KeyOutlined
-                      style={{
-                        color:
-                          licenseStatus === 'invalid' ? '#ff4d4f' : '#7a8796',
-                      }}
-                    />
-                  )
-                }
+          <Form.Item
+            name="username"
+            label={
+              <span
                 style={{
-                  ...fieldStyle,
-                  borderColor: licenseBorder,
-                  boxShadow: licenseGlow,
-                  color:
-                    licenseStatus === 'valid'
-                      ? '#73d13d'
-                      : licenseStatus === 'invalid'
-                        ? '#ff7875'
-                        : '#f0f4f8',
-                  transition:
-                    'border-color 0.25s ease, box-shadow 0.25s ease, color 0.25s ease',
-                }}
-              />
-            </Form.Item>
-
-            <Form.Item style={{ marginBottom: 0, marginTop: 24 }}>
-              <Button
-                type="primary"
-                htmlType="submit"
-                size="large"
-                loading={loading}
-                block
-                style={{
-                  height: 48,
-                  fontWeight: 600,
-                  fontSize: 15,
-                  border: 'none',
-                  borderRadius: 999,
-                  background:
-                    licenseStatus === 'valid'
-                      ? 'linear-gradient(135deg, #52c41a, #389e0d)'
-                      : 'linear-gradient(135deg, #a99bf8 0%, #8b7cf6 55%, #6f5ee0 100%)',
-                  boxShadow:
-                    licenseStatus === 'valid'
-                      ? '0 8px 24px rgba(82, 196, 26, 0.35)'
-                      : '0 8px 24px rgba(22, 119, 255, 0.35)',
-                  transition: 'background 0.3s ease, box-shadow 0.3s ease',
+                  color: 'rgba(255,255,255,0.72)',
+                  fontSize: 13,
+                  fontWeight: 500,
                 }}
               >
-                {licenseStatus === 'valid' ? 'License verified' : 'Continue'}
-              </Button>
-            </Form.Item>
-          </Form>
+                Username
+              </span>
+            }
+            rules={[
+              { required: true, message: 'Please enter a username' },
+              { min: 2, message: 'Username must be at least 2 characters' },
+              { max: 32, message: 'Username must be 32 characters or less' },
+            ]}
+            style={{ marginBottom: 18 }}
+          >
+            <Input
+              size="large"
+              placeholder="e.g. Alex"
+              maxLength={32}
+              prefix={<UserOutlined style={{ color: 'rgba(255,255,255,0.35)' }} />}
+              style={fieldStyle}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="phone"
+            label={
+              <span
+                style={{
+                  color: 'rgba(255,255,255,0.72)',
+                  fontSize: 13,
+                  fontWeight: 500,
+                }}
+              >
+                Phone
+              </span>
+            }
+            rules={[{ required: true, message: 'Please enter your phone number' }]}
+            style={{ marginBottom: 18 }}
+          >
+            <Input
+              size="large"
+              placeholder="Your phone number"
+              prefix={<PhoneOutlined style={{ color: 'rgba(255,255,255,0.35)' }} />}
+              style={fieldStyle}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="licenseKey"
+            label={
+              <span
+                style={{
+                  color: 'rgba(255,255,255,0.72)',
+                  fontSize: 13,
+                  fontWeight: 500,
+                }}
+              >
+                License key
+              </span>
+            }
+            rules={[{ required: true, message: 'Please enter your license key' }]}
+            validateStatus={
+              licenseStatus === 'invalid'
+                ? 'error'
+                : licenseStatus === 'valid'
+                  ? 'success'
+                  : undefined
+            }
+            help={
+              licenseStatus === 'invalid'
+                ? licenseError
+                : licenseStatus === 'valid'
+                  ? 'License verified'
+                  : undefined
+            }
+            style={{ marginBottom: 8 }}
+          >
+            <Input
+              size="large"
+              placeholder="XXXX-XXXX-XXXX-XXXX"
+              prefix={
+                licenseStatus === 'valid' ? (
+                  <CheckCircleFilled style={{ color: '#ffffff' }} />
+                ) : (
+                  <KeyOutlined
+                    style={{
+                      color:
+                        licenseStatus === 'invalid'
+                          ? '#ffffff'
+                          : 'rgba(255,255,255,0.35)',
+                    }}
+                  />
+                )
+              }
+              style={{
+                ...fieldStyle,
+                borderColor: licenseBorder,
+                color:
+                  licenseStatus === 'valid'
+                    ? '#ffffff'
+                    : licenseStatus === 'invalid'
+                      ? '#d9d9d9'
+                      : '#f5f5f5',
+                transition: 'border-color 0.2s ease, color 0.2s ease',
+              }}
+            />
+          </Form.Item>
+
+          <Form.Item style={{ marginBottom: 0, marginTop: 28 }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              loading={loading}
+              block
+              style={{
+                height: 50,
+                fontWeight: 600,
+                fontSize: 15,
+                border: 'none',
+                borderRadius: 999,
+                color: '#111111',
+                background: '#ffffff',
+                boxShadow: 'none',
+              }}
+            >
+              {licenseStatus === 'valid' ? 'License verified' : 'Continue'}
+            </Button>
+          </Form.Item>
+        </Form>
+
+        <div
+          style={{
+            marginTop: 28,
+            textAlign: 'center',
+            fontSize: 12,
+            color: 'rgba(255,255,255,0.28)',
+            letterSpacing: 0.2,
+          }}
+        >
+          Secure multi-service workspace
         </div>
+      </div>
       </div>
 
       <style>{`
-        @keyframes loginCardIn {
-          from { opacity: 0; transform: translateY(18px) scale(0.98); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes tnLoginIn {
+          from { opacity: 0; transform: translateY(14px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes tnLoginLogo {
+          from { opacity: 0; transform: scale(0.92); }
+          to { opacity: 1; transform: scale(1); }
         }
 
-        .login-card .ant-input-affix-wrapper {
-          background: rgba(8, 16, 28, 0.65) !important;
+        .tn-login .ant-input-affix-wrapper {
+          background: #111111 !important;
+          border-radius: 999px !important;
         }
-        .login-card .ant-input-affix-wrapper > input.ant-input {
+        .tn-login .ant-input-affix-wrapper > input.ant-input {
           background: transparent !important;
           color: inherit !important;
         }
-        .login-card .ant-input-affix-wrapper:hover,
-        .login-card .ant-input-affix-wrapper-focused {
-          background: rgba(8, 16, 28, 0.85) !important;
+        .tn-login .ant-input-affix-wrapper:hover,
+        .tn-login .ant-input-affix-wrapper-focused {
+          background: #161616 !important;
+          border-color: rgba(255,255,255,0.32) !important;
         }
-        .login-card .ant-form-item-explain-error {
-          color: #ff7875;
+        .tn-login .ant-form-item-explain-error {
+          color: #cfcfcf;
         }
-        .login-card .ant-form-item-explain-success {
-          color: #73d13d;
+        .tn-login .ant-form-item-explain-success {
+          color: #ffffff;
         }
-
-        @media (max-width: 880px) {
-          .login-shell {
-            grid-template-columns: 1fr !important;
-            gap: 28px !important;
-            max-width: 440px !important;
-          }
-          .login-brand {
-            text-align: center;
-            padding: 0 !important;
-          }
-          .login-brand img {
-            margin-left: auto;
-            margin-right: auto;
-          }
-          .login-brand .login-features {
-            text-align: left;
-          }
+        .tn-login .ant-btn-primary:hover {
+          background: #e8e8e8 !important;
+          color: #111111 !important;
         }
       `}</style>
     </div>

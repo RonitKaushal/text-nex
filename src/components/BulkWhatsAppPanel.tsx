@@ -152,8 +152,8 @@ const BulkWhatsAppPanel: React.FC<BulkWhatsAppPanelProps> = ({ isActive }) => {
           padding: 24,
         }}
       >
-        <Text style={{ color: '#ff7875', textAlign: 'center' }}>
-          {loadError || embed?.error || 'Bulk WhatsApp could not open inside TextNexus'}
+        <Text style={{ color: '#d9d9d9', textAlign: 'center' }}>
+          {loadError || embed?.error || 'Bulk WhatsApp could not open inside ArcticSwitch'}
         </Text>
         <Button
           icon={<ReloadOutlined />}

@@ -9,7 +9,6 @@ import { isMac } from './utils/environment.js';
 import { registerIpcHandlers } from './ipc/handlers.js';
 import { attachAdBlocker } from './utils/adBlock.js';
 import { sshDisconnectAll } from './ssh/sessions.js';
-import { stopWindowsSpeech } from './utils/windowsSpeech.js';
 
 /** Frameless custom chrome on Win/Linux; native traffic lights on macOS. */
 function windowChromeOptions() {
@@ -30,14 +29,14 @@ const isDev = process.env.NODE_ENV === 'development';
 /**
  * Dev vs installed must be separate apps on Windows.
  * Same AppUserModelId + single-instance lock causes `bun run electron-dev`
- * to focus the installed TextNexus instead of opening a new window.
+ * to focus the installed ArcticSwitch instead of opening a new window.
  * Must run BEFORE requestSingleInstanceLock().
  */
-const APP_USER_MODEL_ID = isDev ? 'com.textnexus.app.dev' : 'com.textnexus.app';
+const APP_USER_MODEL_ID = isDev ? 'com.arcticswitch.app.dev' : 'com.arcticswitch.app';
 if (isDev) {
   try {
-    app.setName('TextNexus Dev');
-    app.setPath('userData', path.join(app.getPath('appData'), 'TextNexus-Dev'));
+    app.setName('ArcticSwitch Dev');
+    app.setPath('userData', path.join(app.getPath('appData'), 'ArcticSwitch-Dev'));
   } catch (err) {
     console.warn('[dev] failed to isolate userData:', err?.message || err);
   }
@@ -211,7 +210,7 @@ function openPopoutService(payload) {
     minWidth: 900,
     minHeight: 600,
     icon: getAppIconPath(),
-    title: payload.name || 'TextNexus',
+    title: payload.name || 'ArcticSwitch',
     ...windowChromeOptions(),
     autoHideMenuBar: true,
     backgroundColor: '#000d18',
@@ -276,7 +275,7 @@ class NotificationManager {
     this.isAppVisible = true;
     this.replyCallbacks = new Map();
     this.serviceIcons = this.initializeServiceIcons();
-    this.avatarCacheDir = path.join(app.getPath('temp'), 'textnexus-avatars');
+    this.avatarCacheDir = path.join(app.getPath('temp'), 'arcticswitch-avatars');
     try {
       fs.mkdirSync(this.avatarCacheDir, { recursive: true });
     } catch {
@@ -840,7 +839,7 @@ function createWindow() {
     minWidth: 800,
     minHeight: 600,
     icon: getAppIconPath(),
-    title: 'TextNexus',
+    title: 'ArcticSwitch',
     ...windowChromeOptions(),
     autoHideMenuBar: true,
     menuBarVisible: false,
@@ -1057,11 +1056,11 @@ function createTray() {
   const trayImage = nativeImage.createFromPath(trayPath);
   const fallback = nativeImage.createFromPath(getAboutIconPath());
   tray = new Tray(trayImage.isEmpty() ? fallback : trayImage);
-  tray.setToolTip('TextNexus');
+  tray.setToolTip('ArcticSwitch');
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'Show TextNexus',
+      label: 'Show ArcticSwitch',
       click: () => {
         if (mainWindow) {
           if (mainWindow.isMinimized()) mainWindow.restore();
@@ -1192,9 +1191,9 @@ app.whenReady().then(() => {
 
   if (typeof app.setAboutPanelOptions === 'function') {
     app.setAboutPanelOptions({
-      applicationName: isDev ? 'TextNexus Dev' : 'TextNexus',
+      applicationName: isDev ? 'ArcticSwitch Dev' : 'ArcticSwitch',
       applicationVersion: app.getVersion(),
-      copyright: 'TextNexus',
+      copyright: 'ArcticSwitch',
       iconPath: getAboutIconPath()
     });
   }
@@ -1221,7 +1220,7 @@ app.whenReady().then(() => {
         if (typeof ses.registerPreloadScript === 'function') {
           ses.registerPreloadScript({
             type: 'frame',
-            id: 'textnexus-block-passkeys',
+            id: 'arcticswitch-block-passkeys',
             filePath: passkeyFramePreload,
           });
         } else if (typeof ses.setPreloads === 'function') {
@@ -1431,11 +1430,6 @@ app.on('window-all-closed', () => {
 app.on('before-quit', () => {
   isQuitting = true;
   saveMainWindowState();
-  try {
-    stopWindowsSpeech();
-  } catch {
-    /* ignore */
-  }
   try {
     sshDisconnectAll();
   } catch {

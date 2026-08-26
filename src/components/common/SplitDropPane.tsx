@@ -58,7 +58,7 @@ export function SplitDropPane({
             inset: 8,
             borderRadius: 12,
             border: `2px dashed ${COLORS.PRIMARY}`,
-            background: 'rgba(139, 124, 246, 0.12)',
+            background: 'rgba(255,255,255,0.16)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

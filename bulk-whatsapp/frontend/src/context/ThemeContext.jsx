@@ -2,7 +2,7 @@ import React, { createContext, useContext } from 'react';
 
 const ThemeContext = createContext();
 
-/** TextNexus-aligned deep navy theme */
+/** ArcticSwitch-aligned deep navy theme */
 export const APP_COLORS = {
   APP_BG_BASE: '#000d18',
   APP_BG_GLOW: '#0b1325',

@@ -213,8 +213,7 @@ const WorkspaceIconSidebar: React.FC<WorkspaceIconSidebarProps> = ({
         <BrandLogo
           isDarkMode={isDarkMode}
           size={36}
-          alt="TextNexus Logo"
-          style={{ borderRadius: '9px' }}
+          alt="ArcticSwitch Logo"
         />
       </div>
       )}
@@ -284,7 +283,7 @@ const WorkspaceIconSidebar: React.FC<WorkspaceIconSidebarProps> = ({
                 border: disabledServices.has(service.id)
                   ? `2px dashed ${isDarkMode ? '#434343' : '#d9d9d9'}`
                   : dragOverIndex === index
-                    ? '2px dashed #8b7cf6'
+                    ? '2px dashed #ffffff'
                     : '2px solid transparent',
                 position: 'relative',
                 overflow: 'visible',
@@ -381,7 +380,7 @@ const WorkspaceIconSidebar: React.FC<WorkspaceIconSidebarProps> = ({
                     position: 'absolute',
                     bottom: '2px',
                     right: '2px',
-                    background: '#ff4d4f',
+                    background: '#ffffff',
                     borderRadius: '50%',
                     width: '20px',
                     height: '20px',
@@ -409,9 +408,9 @@ const WorkspaceIconSidebar: React.FC<WorkspaceIconSidebarProps> = ({
                   left: '-2px',
                   right: '-2px',
                   bottom: '-2px',
-                  border: '2px dashed #8b7cf6',
+                  border: '2px dashed #ffffff',
                   borderRadius: '12px',
-                  background: 'rgba(139, 124, 246, 0.1)',
+                  background: 'rgba(255,255,255,0.16)',
                   pointerEvents: 'none'
                 }} />
               )}
@@ -458,8 +457,8 @@ const WorkspaceIconSidebar: React.FC<WorkspaceIconSidebarProps> = ({
             }}
             onClick={onAddService}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#25D366';
-              e.currentTarget.style.background = isDarkMode ? '#25D36610' : '#f6ffed';
+              e.currentTarget.style.borderColor = '#ffffff';
+              e.currentTarget.style.background = isDarkMode ? '#ffffff10' : 'rgba(255,255,255,0.08)';
               e.currentTarget.style.transform = 'scale(1.05)';
             }}
             onMouseLeave={(e) => {
@@ -500,7 +499,7 @@ const WorkspaceIconSidebar: React.FC<WorkspaceIconSidebarProps> = ({
               justifyContent: 'center',
               color:
                 activeTab === 'dashboard' || activeTab === ''
-                  ? '#fff'
+                  ? '#111111'
                   : isDarkMode
                     ? '#e8eaed'
                     : '#595959',
@@ -531,7 +530,7 @@ const WorkspaceIconSidebar: React.FC<WorkspaceIconSidebarProps> = ({
                     : '#f0f0f0';
             }}
           >
-            <HomeOutlined />
+            <HomeOutlined style={{ color: 'inherit' }} />
           </button>
         </Tooltip>
 
@@ -555,8 +554,8 @@ const WorkspaceIconSidebar: React.FC<WorkspaceIconSidebarProps> = ({
               color: isDarkMode ? '#e8eaed' : '#595959',
               background: workspaceDetailVisible
                 ? isDarkMode
-                  ? 'rgba(139, 124, 246, 0.28)'
-                  : '#f0edff'
+                  ? 'rgba(255,255,255,0.16)'
+                  : 'rgba(255,255,255,0.12)'
                 : isDarkMode
                   ? COLORS.APP_ICON_BTN
                   : '#f0f0f0',
@@ -579,8 +578,8 @@ const WorkspaceIconSidebar: React.FC<WorkspaceIconSidebarProps> = ({
                   : '#f0f0f0';
               } else {
                 e.currentTarget.style.background = isDarkMode
-                  ? 'rgba(139, 124, 246, 0.28)'
-                  : '#f0edff';
+                  ? 'rgba(255,255,255,0.16)'
+                  : 'rgba(255,255,255,0.12)';
               }
             }}
           >

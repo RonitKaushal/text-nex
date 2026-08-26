@@ -12,17 +12,12 @@ import { useUnread } from '../context/UnreadContext';
 import { ServiceLogo } from '../components/common';
 import { COLORS, FONT_FAMILY, MAX_WORKSPACES } from '../constants';
 import { storage } from '../utils/storage';
+import { getStoredUsername } from '../utils/username';
 import type { ServiceTab, Workspace } from '../types';
 import './Dashboard.css';
 
-const LIVE = '#c8f542';
-const PROFILE_FOLDER_GRADIENTS = [
-  'linear-gradient(160deg, #2563eb 0%, #60a5fa 48%, #bfdbfe 100%)',
-  'linear-gradient(160deg, #e11d48 0%, #fb7185 48%, #fecdd3 100%)',
-  'linear-gradient(160deg, #0f766e 0%, #2dd4bf 48%, #99f6e4 100%)',
-  'linear-gradient(160deg, #c2410c 0%, #fb923c 48%, #fed7aa 100%)',
-  'linear-gradient(160deg, #7c3aed 0%, #a78bfa 48%, #ddd6fe 100%)',
-];
+const LIVE = '#ffffff';
+const PROFILE_FOLDER_COLORS = ['#1a1a1a', '#222222', '#2a2a2a', '#1f1f1f', '#262626'];
 
 interface SessionInfo {
   partition: string;
@@ -80,7 +75,14 @@ function formatShortRelative(ts?: number) {
   return `${Math.floor(hr / 24)}d`;
 }
 
-function displayNameFromProfile(phone?: string | number, email?: string) {
+function displayNameFromProfile(
+  username?: string,
+  phone?: string | number,
+  email?: string
+) {
+  if (username && String(username).trim()) {
+    return String(username).trim();
+  }
   if (phone !== undefined && phone !== null && String(phone).trim()) {
     const p = String(phone).replace(/^\+/, '');
     return `+${p}`;
@@ -94,15 +96,11 @@ function displayNameFromProfile(phone?: string | number, email?: string) {
 
 function cardStyle(isDarkMode: boolean, extra?: CSSProperties): CSSProperties {
   return {
-    background: isDarkMode ? 'rgba(22, 29, 43, 0.68)' : 'rgba(255, 255, 255, 0.7)',
-    border: `1px solid ${isDarkMode ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.86)'}`,
+    background: isDarkMode ? '#111111' : '#ffffff',
+    border: `1px solid ${isDarkMode ? COLORS.APP_BORDER : '#e8e8e8'}`,
     borderRadius: 18,
     padding: 22,
-    boxShadow: isDarkMode
-      ? '0 18px 42px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.06)'
-      : '0 18px 42px rgba(32, 44, 64, 0.08), inset 0 1px 0 rgba(255,255,255,0.9)',
-    backdropFilter: 'blur(22px) saturate(125%)',
-    WebkitBackdropFilter: 'blur(22px) saturate(125%)',
+    boxShadow: 'none',
     ...extra,
   };
 }
@@ -234,7 +232,11 @@ export default function Dashboard({
   const lockedCount = allServices.filter((s) => s.isLocked || !!s.lockPasswordHash).length;
   const disabledCount = allServices.filter((s) => disabledServices.has(s.id)).length;
   const protectedCount = Math.max(0, allServices.length - disabledCount);
-  const name = displayNameFromProfile(userProfile?.phone, userProfile?.email);
+  const name = displayNameFromProfile(
+    getStoredUsername(),
+    userProfile?.phone,
+    userProfile?.email
+  );
 
   const textPrimary = isDarkMode ? '#f5f5f5' : '#141414';
   const textMuted = isDarkMode ? '#9a9a9a' : '#6b6b6b';
@@ -249,9 +251,7 @@ export default function Dashboard({
         fontFamily: FONT_FAMILY,
         color: textPrimary,
         boxSizing: 'border-box',
-        background: isDarkMode
-          ? 'radial-gradient(circle at 8% 0%, rgba(92, 78, 189, 0.22), transparent 30%), radial-gradient(circle at 92% 28%, rgba(20, 184, 166, 0.12), transparent 26%)'
-          : 'radial-gradient(circle at 8% 0%, rgba(139, 124, 246, 0.16), transparent 28%), radial-gradient(circle at 92% 28%, rgba(20, 184, 166, 0.12), transparent 25%), #eef2f7',
+        background: isDarkMode ? '#000000' : '#f5f5f5',
       }}
     >
       {/* Hero */}
@@ -277,7 +277,7 @@ export default function Dashboard({
               color: textPrimary,
             }}
           >
-            {greetingForNow()}, <span style={{ color: '#8b7cf6' }}>{name}</span>
+            {greetingForNow()}, <span style={{ color: '#ffffff' }}>{name}</span>
           </h1>
           <p style={{ margin: '10px 0 0', fontSize: 15, color: textMuted, maxWidth: 520, lineHeight: 1.5 }}>
             Manage {allServices.length} account{allServices.length === 1 ? '' : 's'} across{' '}
@@ -579,7 +579,7 @@ export default function Dashboard({
         }}
       >
         {workspaces.map((ws, idx) => {
-          const gradient = PROFILE_FOLDER_GRADIENTS[idx % PROFILE_FOLDER_GRADIENTS.length];
+          const folderColor = PROFILE_FOLDER_COLORS[idx % PROFILE_FOLDER_COLORS.length];
           const services = ws.services;
           const isActiveWs = ws.id === activeWorkspace;
           const subtitle =
@@ -597,7 +597,7 @@ export default function Dashboard({
               type="button"
               onClick={() => onOpenWorkspace(ws.id)}
               className={`tn-folder-card${isActiveWs ? ' tn-folder-card--active' : ''}`}
-              style={{ backgroundImage: gradient }}
+              style={{ backgroundColor: folderColor, backgroundImage: 'none' }}
               aria-label={`Open profile ${ws.name}`}
             >
               <div className="tn-folder-card__papers" aria-hidden="true">
@@ -942,10 +942,10 @@ function ghostBtn(isDarkMode: boolean, extra?: CSSProperties): CSSProperties {
 function primaryBtn(isDarkMode: boolean): CSSProperties {
   return {
     height: 40,
-    borderRadius: 12,
-    border: `1px solid ${isDarkMode ? 'rgba(255,255,255,0.12)' : '#d9d9d9'}`,
-    background: isDarkMode ? COLORS.APP_BG_ELEVATED : '#111',
-    color: isDarkMode ? '#fff' : '#fff',
+    borderRadius: 999,
+    border: 'none',
+    background: '#ffffff',
+    color: '#111111',
     cursor: 'pointer',
     padding: '0 14px',
     fontWeight: 650,

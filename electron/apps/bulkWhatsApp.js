@@ -1,5 +1,5 @@
 /**
- * Embed Bulk WhatsApp UI inside TextNexus (no separate exe window).
+ * Embed Bulk WhatsApp UI inside ArcticSwitch (no separate exe window).
  */
 import { app } from 'electron';
 import fs from 'fs';
@@ -56,7 +56,7 @@ export function getBulkEmbedPaths() {
 }
 
 /**
- * Start Baileys / campaign IPC host inside TextNexus main process.
+ * Start Baileys / campaign IPC host inside ArcticSwitch main process.
  * @param {() => import('electron').BrowserWindow | null} getMainWindow
  */
 export async function ensureBulkWhatsAppHost(getMainWindow) {
@@ -79,7 +79,7 @@ export async function ensureBulkWhatsAppHost(getMainWindow) {
     await host.startBulkEmbedHost({
       getHostWindow: getMainWindow,
       bulkRoot: paths.root,
-      // Resolve electron-store from TextNexus asar — packaged embed path cannot
+      // Resolve electron-store from ArcticSwitch asar — packaged embed path cannot
       ElectronStore: Store,
     });
     hostStarted = true;

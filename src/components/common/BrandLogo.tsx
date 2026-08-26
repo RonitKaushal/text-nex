@@ -9,7 +9,7 @@ interface BrandLogoProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'
   style?: CSSProperties;
 }
 
-/** Theme-aware TextNexus mark — light logo in dark mode, black logo in light mode. */
+/** Theme-aware ArcticSwitch mark — light logo in dark mode, black logo in light mode. */
 export function BrandLogo({
   isDarkMode = true,
   size,

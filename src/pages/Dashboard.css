@@ -1,36 +1,9 @@
 .tn-dashboard {
-  --tn-glass-border: rgba(255, 255, 255, 0.74);
-  --tn-glass-fill: rgba(255, 255, 255, 0.56);
   position: relative;
-  isolation: isolate;
-}
-
-.tn-dashboard::before,
-.tn-dashboard::after {
-  content: '';
-  position: fixed;
-  z-index: -1;
-  width: 34rem;
-  height: 34rem;
-  border-radius: 50%;
-  pointer-events: none;
-  filter: blur(18px);
-}
-
-.tn-dashboard::before {
-  top: -22rem;
-  right: -9rem;
-  background: radial-gradient(circle, rgba(139, 124, 246, 0.25), transparent 67%);
-}
-
-.tn-dashboard::after {
-  bottom: -25rem;
-  left: -12rem;
-  background: radial-gradient(circle, rgba(20, 184, 166, 0.17), transparent 67%);
 }
 
 .tn-dashboard button {
-  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+  transition: transform 180ms ease, background-color 180ms ease;
 }
 
 .tn-dashboard button:hover:not(:disabled) {
@@ -38,12 +11,12 @@
 }
 
 .tn-dashboard button:focus-visible {
-  outline: 2px solid #8b7cf6;
+  outline: 2px solid #ffffff;
   outline-offset: 3px;
 }
 
 .tn-dashboard .tn-eyebrow {
-  color: #8b7cf6;
+  color: #ffffff;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.13em;
@@ -57,37 +30,34 @@
   margin-right: 7px;
   border-radius: 50%;
   background: currentColor;
-  box-shadow: 0 0 12px currentColor;
 }
 
 .tn-dashboard .tn-dashboard-glass {
-  background: var(--tn-glass-fill) !important;
-  border-color: var(--tn-glass-border) !important;
-  backdrop-filter: blur(22px) saturate(130%);
-  -webkit-backdrop-filter: blur(22px) saturate(130%);
+  background: #111111 !important;
+  border-color: #2a2a2a !important;
 }
 
 .tn-profiles-section {
   margin: 0 0 20px;
   padding: 20px 28px 28px;
-  border: 1px solid #292c35;
+  border: 1px solid #2a2a2a;
   border-radius: 20px;
-  background: #101116;
+  background: #000000;
 }
 
 .tn-profiles-section--dark {
-  background: #101116;
-  border-color: #292c35;
+  background: #000000;
+  border-color: #2a2a2a;
 }
 
 .tn-profiles-heading {
   padding-bottom: 13px;
-  border-bottom: 1px solid #292c35;
+  border-bottom: 1px solid #2a2a2a;
 }
 
 .tn-profiles-kicker {
   margin-bottom: 5px;
-  color: #77839a;
+  color: #9a9a9a;
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -96,10 +66,10 @@
 
 .tn-profiles-heading h2 {
   font-size: 18px !important;
-  color: #f7f8fb;
+  color: #f7f7f7;
 }
 
-.tn-profiles-heading > span strong { color: #9fa9bd; }
+.tn-profiles-heading > span strong { color: #9a9a9a; }
 
 .tn-profiles-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
@@ -107,7 +77,7 @@
   margin-bottom: 0 !important;
 }
 
-/* Folder card — matches reference pocket-folder UI */
+/* Folder card — monochrome */
 .tn-folder-card {
   --folder-radius: 30px;
   position: relative;
@@ -119,40 +89,35 @@
   min-height: 230px;
   padding: 0;
   overflow: hidden;
-  border: none;
+  border: 1px solid #2a2a2a;
   border-radius: var(--folder-radius);
-  background-color: #3b82f6;
+  background-color: #1a1a1a;
+  background-image: none;
   background-size: cover;
   background-position: center;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.06),
-    0 12px 28px rgba(0, 0, 0, 0.18);
+  box-shadow: none;
   cursor: pointer;
   text-align: left;
   color: #fff;
   font-family: inherit;
   appearance: none;
   -webkit-appearance: none;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease, border-color 0.18s ease;
   isolation: isolate;
 }
 
 .tn-folder-card:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.08),
-    0 18px 36px rgba(0, 0, 0, 0.24);
+  border-color: #3a3a3a;
 }
 
 .tn-folder-card:focus-visible {
-  outline: 2px solid #93c5fd;
+  outline: 2px solid #ffffff;
   outline-offset: 3px;
 }
 
 .tn-folder-card--active {
-  box-shadow:
-    0 0 0 2px #f7f8fb,
-    0 12px 28px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 0 2px #ffffff;
 }
 
 .tn-folder-card__papers {
@@ -302,7 +267,8 @@
 }
 
 .tn-folder-card--create {
-  background-image: linear-gradient(145deg, #374151 0%, #6b7280 45%, #d1d5db 100%) !important;
+  background-color: #141414 !important;
+  background-image: none !important;
 }
 
 .tn-folder-card--create .tn-folder-paper {
@@ -325,9 +291,4 @@
 
 @media (min-width: 1121px) and (max-width: 1450px) {
   .tn-profiles-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
-}
-
-@media (max-width: 700px) {
-  .tn-dashboard::before,
-  .tn-dashboard::after { width: 22rem; height: 22rem; }
 }

@@ -33,7 +33,7 @@ const LockServiceModal: React.FC<LockServiceModalProps> = ({
       ? 'Remove Lock'
       : 'Enter Password';
   const confirmText = !isLocked ? 'Lock' : isRemoveLock ? 'Remove Lock' : 'Open';
-  const accent = !isLocked ? token.colorPrimary : isRemoveLock ? '#52c41a' : token.colorPrimary;
+  const accent = !isLocked ? token.colorPrimary : isRemoveLock ? '#ffffff' : token.colorPrimary;
 
   useEffect(() => {
     if (visible) {

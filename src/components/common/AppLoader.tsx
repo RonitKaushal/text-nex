@@ -53,7 +53,7 @@ export function AppLoader({
           borderRadius: '50%',
           background: isDarkMode
             ? 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(139,124,246,0.1) 0%, transparent 70%)',
+            : 'radial-gradient(circle, rgba(255,255,255,0.16) 0%, transparent 70%)',
           top: '42%',
           left: '50%',
           transform: 'translate(-50%, -50%)',

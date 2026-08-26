@@ -300,7 +300,7 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
             border-radius: 999px;
           }
           .workspace-sidebar-scroll::-webkit-scrollbar-thumb:hover {
-            background: ${isDarkMode ? 'rgba(139,124,246,0.45)' : 'rgba(0,0,0,0.32)'};
+            background: ${isDarkMode ? 'rgba(255,255,255,0.16)' : 'rgba(0,0,0,0.32)'};
           }
         `}</style>
 
@@ -320,11 +320,11 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
                         cursor: 'pointer',
                         background: isActiveWorkspace
                           ? isDarkMode
-                            ? 'rgba(139, 124, 246, 0.14)'
+                            ? 'rgba(255,255,255,0.16)'
                             : COLORS.PRIMARY_SOFT
                           : 'transparent',
                         border: isActiveWorkspace
-                          ? `1px solid ${isDarkMode ? 'rgba(139, 124, 246, 0.35)' : 'rgba(139, 124, 246, 0.28)'}`
+                          ? `1px solid ${isDarkMode ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.16)'}`
                           : '1px solid transparent',
                         transition: 'background 0.18s ease, border-color 0.18s ease',
                       }}
@@ -344,7 +344,7 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
                       onMouseLeave={(e) => {
                         e.currentTarget.style.background = isActiveWorkspace
                           ? isDarkMode
-                            ? 'rgba(139, 124, 246, 0.14)'
+                            ? 'rgba(255,255,255,0.16)'
                             : COLORS.PRIMARY_SOFT
                           : 'transparent';
                       }}
@@ -392,7 +392,7 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
                                   marginTop: 4,
                                   display: 'block',
                                   color: isActiveWorkspace
-                                    ? 'rgba(139, 124, 246, 0.72)'
+                                    ? 'rgba(255,255,255,0.16)'
                                     : isDarkMode
                                       ? 'rgba(255,255,255,0.5)'
                                       : undefined,
@@ -414,7 +414,7 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
                                   e.stopPropagation();
                                   handleSaveWorkspace();
                                 }}
-                                style={actionBtnStyle('#52c41a')}
+                                style={actionBtnStyle('#ffffff')}
                               />
                               <Button 
                                 type="text" 
@@ -423,7 +423,7 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
                                   e.stopPropagation();
                                   handleCancelEdit();
                                 }}
-                                style={actionBtnStyle('#ff4d4f')}
+                                style={actionBtnStyle('#ffffff')}
                               />
                             </>
                           ) : (
@@ -452,7 +452,7 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
                                     type="text" 
                                     icon={<DeleteOutlined style={{ fontSize: 14 }} />}
                                     onClick={(e) => handleDeleteWorkspace(workspace.id, e)}
-                                    style={actionBtnStyle('#ff4d4f')}
+                                    style={actionBtnStyle('#ffffff')}
                                     onMouseEnter={(e) => {
                                       e.currentTarget.style.opacity = '1';
                                     }}
@@ -520,11 +520,11 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
                                 cursor: 'pointer',
                                 background: activeTab === service.id
                                   ? isDarkMode
-                                    ? 'rgba(139, 124, 246, 0.14)'
+                                    ? 'rgba(255,255,255,0.16)'
                                     : COLORS.PRIMARY_SOFT
                                   : 'transparent',
                                 border: activeTab === service.id
-                                  ? `1px solid ${isDarkMode ? 'rgba(139, 124, 246, 0.45)' : 'rgba(139, 124, 246, 0.35)'}`
+                                  ? `1px solid ${isDarkMode ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.16)'}`
                                   : dragOverIndex === serviceIndex
                                     ? `1px dashed ${COLORS.PRIMARY}`
                                     : '1px solid transparent',
@@ -598,7 +598,7 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
                                     position: 'absolute',
                                     bottom: '-3px',
                                     right: '-3px',
-                                    background: '#ff4d4f',
+                                    background: '#ffffff',
                                     borderRadius: '50%',
                                     width: '16px',
                                     height: '16px',
@@ -658,7 +658,7 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
                                     ellipsis
                                   >
                                     {service.isLocked && (
-                                      <LockOutlined style={{ color: '#ff4d4f', fontSize: 13, flexShrink: 0 }} />
+                                      <LockOutlined style={{ color: '#ffffff', fontSize: 13, flexShrink: 0 }} />
                                     )}
                                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                       {service.name}
@@ -677,7 +677,7 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
                                         e.stopPropagation();
                                         handleSaveService();
                                       }}
-                                      style={actionBtnStyle('#52c41a')}
+                                      style={actionBtnStyle('#ffffff')}
                                     />
                                     <Button 
                                       type="text" 
@@ -686,7 +686,7 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
                                         e.stopPropagation();
                                         handleCancelEdit();
                                       }}
-                                      style={actionBtnStyle('#ff4d4f')}
+                                      style={actionBtnStyle('#ffffff')}
                                     />
                                   </>
                                 ) : (
@@ -714,7 +714,7 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
                                         type="text" 
                                         icon={<CloseOutlined style={{ fontSize: 14 }} />}
                                         onClick={(e) => handleDeleteService(service.id, e)}
-                                        style={actionBtnStyle('#ff4d4f')}
+                                        style={actionBtnStyle('#ffffff')}
                                         onMouseEnter={(e) => {
                                           e.currentTarget.style.opacity = '1';
                                         }}
@@ -765,7 +765,7 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
                           onMouseEnter={(e) => {
                             e.currentTarget.style.color = COLORS.PRIMARY;
                             e.currentTarget.style.background = isDarkMode
-                              ? 'rgba(139, 124, 246, 0.1)'
+                              ? 'rgba(255,255,255,0.16)'
                               : COLORS.PRIMARY_SOFT;
                             e.currentTarget.style.borderColor = COLORS.PRIMARY;
                           }}
@@ -806,7 +806,7 @@ const WorkspaceDetailSidebar: React.FC<WorkspaceDetailSidebarProps> = ({
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = COLORS.PRIMARY;
                 e.currentTarget.style.background = isDarkMode
-                  ? 'rgba(139, 124, 246, 0.1)'
+                  ? 'rgba(255,255,255,0.16)'
                   : COLORS.PRIMARY_SOFT;
                 e.currentTarget.style.borderColor = COLORS.PRIMARY;
               }}

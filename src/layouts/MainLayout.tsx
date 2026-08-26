@@ -7,7 +7,7 @@ import WorkspaceDetailSidebar from '../components/WorkspaceDetailSidebar';
 import { AppTitleBar } from '../components/common';
 import { useServiceChromeOptional, MAX_BROWSER_TABS } from '../context/ServiceChromeContext';
 import { getServiceConfig } from '../utils/serviceConfig';
-import { APP_TOP_BAR_HEIGHT, APP_BG_GRADIENT, APP_SIDEBAR_BG, COLORS } from '../constants';
+import { APP_TOP_BAR_HEIGHT, APP_SIDEBAR_BG, COLORS } from '../constants';
 import { useUnreadOptional } from '../context/UnreadContext';
 
 const { Content } = Layout;
@@ -200,7 +200,7 @@ export function MainLayout({
         height: '100vh',
         maxHeight: '100vh',
         overflow: 'hidden',
-        background: isDarkMode ? APP_BG_GRADIENT : '#f0f2f5',
+        background: isDarkMode ? '#000000' : '#f0f2f5',
         flexDirection: 'column',
       }}
     >
@@ -254,7 +254,7 @@ export function MainLayout({
           flex: 1,
           minHeight: 0,
           overflow: 'hidden',
-          background: isDarkMode ? APP_BG_GRADIENT : '#f0f2f5',
+          background: isDarkMode ? '#000000' : '#f0f2f5',
           // Plain <aside> does not trigger ant-layout-has-sider — force row
           // or the icon rail stacks above content and the main pane goes blank/black.
           flexDirection: 'row',

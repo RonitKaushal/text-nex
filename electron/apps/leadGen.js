@@ -1,5 +1,5 @@
 /**
- * Embed Lead Gen (Express + React) inside TextNexus — Pro plan only.
+ * Embed Lead Gen (Express + React) inside ArcticSwitch — Pro plan only.
  */
 import fs from 'fs';
 import path from 'path';

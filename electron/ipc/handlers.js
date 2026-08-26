@@ -18,12 +18,6 @@ import {
   leadGenLaunch,
 } from '../apps/leadGen.js';
 import { downloadAndInstallUpdate } from '../apps/appUpdate.js';
-import {
-  startWindowsSpeech,
-  stopWindowsSpeech,
-  getWindowsSpeechStatus,
-} from '../utils/windowsSpeech.js';
-import { recognizePcmUtterance } from '../utils/voiceWavRecognize.js';
 
 /**
  * Register core IPC handlers (extracted from main for maintainability).
@@ -125,8 +119,8 @@ export function registerIpcHandlers({ getMainWindow, store, notificationManager,
       if (process.platform === 'win32') {
         app.setAppUserModelId(
           process.env.NODE_ENV === 'development'
-            ? 'com.textnexus.app.dev'
-            : 'com.textnexus.app'
+            ? 'com.arcticswitch.app.dev'
+            : 'com.arcticswitch.app'
         );
       }
       return await notificationManager.showNotification(
@@ -358,27 +352,4 @@ export function registerIpcHandlers({ getMainWindow, store, notificationManager,
   ipcMain.handle(IPC_CHANNELS.LEAD_GEN_STATUS, () => leadGenStatus());
   ipcMain.handle(IPC_CHANNELS.LEAD_GEN_INSTALL, () => leadGenInstall());
   ipcMain.handle(IPC_CHANNELS.LEAD_GEN_LAUNCH, () => leadGenLaunch());
-
-  ipcMain.handle(IPC_CHANNELS.VOICE_SPEECH_STATUS, () => getWindowsSpeechStatus());
-  ipcMain.handle(IPC_CHANNELS.VOICE_SPEECH_START, (_event, options) =>
-    startWindowsSpeech(options && typeof options === 'object' ? options : {})
-  );
-  ipcMain.handle(IPC_CHANNELS.VOICE_SPEECH_STOP, () => {
-    stopWindowsSpeech();
-    return { ok: true };
-  });
-  ipcMain.handle(IPC_CHANNELS.VOICE_RECOGNIZE_PCM, async (_event, payload) => {
-    try {
-      const result = await recognizePcmUtterance(
-        payload && typeof payload === 'object' ? payload : {}
-      );
-      return result;
-    } catch (err) {
-      return {
-        ok: false,
-        text: '',
-        error: err instanceof Error ? err.message : 'recognize failed',
-      };
-    }
-  });
 }

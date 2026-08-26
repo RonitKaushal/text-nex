@@ -1,17 +1,9 @@
-import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
-import { Empty, Input, Select, Typography } from 'antd';
-import {
-  InboxOutlined,
-  SearchOutlined,
-  SortAscendingOutlined,
-  FilterOutlined,
-  MailOutlined,
-  MessageOutlined,
-  AppstoreOutlined,
-} from '@ant-design/icons';
+import { useMemo, useState, type CSSProperties } from 'react';
+import { Empty, Input, Select } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import { ServiceLogo } from '../components/common';
 import { useInboxOptional, type InboxItem } from '../context/InboxContext';
-import { COLORS, FONT_FAMILY } from '../constants';
+import { FONT_FAMILY } from '../constants';
 import type { ServiceTab, Workspace } from '../types';
 import {
   dispatchOpenInboxChat,
@@ -21,8 +13,6 @@ import {
   type InboxPlatformTab,
   type InboxSortId,
 } from '../utils/inboxHelpers';
-
-const { Text } = Typography;
 
 interface UnreadInboxPageProps {
   isDarkMode: boolean;
@@ -38,60 +28,7 @@ type EnrichedItem = InboxItem & {
   accountLabel: string;
 };
 
-function cardStyle(isDarkMode: boolean): CSSProperties {
-  return {
-    background: isDarkMode ? 'rgba(22, 29, 43, 0.72)' : 'rgba(255, 255, 255, 0.78)',
-    border: `1px solid ${isDarkMode ? COLORS.APP_BORDER : 'rgba(0,0,0,0.06)'}`,
-    borderRadius: 16,
-    padding: 16,
-  };
-}
-
-function StatCard({
-  label,
-  value,
-  hint,
-  isDarkMode,
-  icon,
-}: {
-  label: string;
-  value: string | number;
-  hint?: string;
-  isDarkMode: boolean;
-  icon: ReactNode;
-}) {
-  const muted = isDarkMode ? '#9aa0a6' : '#6b6b6b';
-  const text = isDarkMode ? '#e8eaed' : '#1f1f1f';
-  return (
-    <div style={{ ...cardStyle(isDarkMode), display: 'flex', gap: 12, alignItems: 'center' }}>
-      <div
-        style={{
-          width: 42,
-          height: 42,
-          borderRadius: 12,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: isDarkMode ? 'rgba(139,124,246,0.16)' : COLORS.PRIMARY_SOFT,
-          color: COLORS.PRIMARY,
-          fontSize: 18,
-          flexShrink: 0,
-        }}
-      >
-        {icon}
-      </div>
-      <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: 12, color: muted, fontWeight: 600, letterSpacing: 0.3 }}>
-          {label}
-        </div>
-        <div style={{ fontSize: 22, fontWeight: 700, color: text, lineHeight: 1.2 }}>{value}</div>
-        {hint ? <div style={{ fontSize: 11, color: muted, marginTop: 2 }}>{hint}</div> : null}
-      </div>
-    </div>
-  );
-}
-
-/** Full-page unified unread inbox with tabs, filters, and sorting. */
+/** Professional mail-style unified unread inbox. */
 export default function UnreadInboxPage({
   isDarkMode,
   workspaces,
@@ -102,12 +39,17 @@ export default function UnreadInboxPage({
   const [accountFilter, setAccountFilter] = useState<string>('all');
   const [workspaceFilter, setWorkspaceFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<InboxSortId>('newest');
-  const [groupBy, setGroupBy] = useState<InboxGroupBy>('platform');
+  const [groupBy, setGroupBy] = useState<InboxGroupBy>('none');
   const [query, setQuery] = useState('');
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  const text = isDarkMode ? '#e8eaed' : '#1f1f1f';
-  const muted = isDarkMode ? '#9aa0a6' : '#6b6b6b';
-  const border = isDarkMode ? COLORS.APP_BORDER : '#e5e7eb';
+  const text = isDarkMode ? '#f2f2f2' : '#111111';
+  const muted = isDarkMode ? '#8a8a8a' : '#6b6b6b';
+  const faint = isDarkMode ? '#5a5a5a' : '#9a9a9a';
+  const border = isDarkMode ? '#222222' : '#e8e8e8';
+  const surface = isDarkMode ? '#0a0a0a' : '#ffffff';
+  const rowHover = isDarkMode ? '#141414' : '#f7f7f7';
+  const controlBg = isDarkMode ? '#111111' : '#f5f5f5';
 
   const serviceById = useMemo(() => {
     const map = new Map<string, ServiceTab>();
@@ -161,10 +103,8 @@ export default function UnreadInboxPage({
   const counts = useMemo(() => {
     const byPlatform = { whatsapp: 0, gmail: 0, other: 0 };
     const accountIds = new Set<string>();
-    let unreadSum = 0;
     for (const item of enriched) {
       accountIds.add(item.serviceId);
-      unreadSum += item.unread || 0;
       if (item.platformKey === 'whatsapp') byPlatform.whatsapp += 1;
       else if (item.platformKey === 'gmail') byPlatform.gmail += 1;
       else byPlatform.other += 1;
@@ -172,16 +112,13 @@ export default function UnreadInboxPage({
     return {
       total: enriched.length,
       accounts: accountIds.size,
-      unreadSum,
       byPlatform,
     };
   }, [enriched]);
 
   const accountOptions = useMemo(() => {
     const map = new Map<string, string>();
-    for (const item of enriched) {
-      map.set(item.serviceId, item.accountLabel);
-    }
+    for (const item of enriched) map.set(item.serviceId, item.accountLabel);
     return Array.from(map.entries())
       .map(([id, label]) => ({ value: id, label }))
       .sort((a, b) => a.label.localeCompare(b.label));
@@ -226,22 +163,14 @@ export default function UnreadInboxPage({
 
   const groups = useMemo(() => {
     if (groupBy === 'none') {
-      return [{ key: 'all', title: 'All unread', items: filtered }];
+      return [{ key: 'all', title: null as string | null, items: filtered }];
     }
     const map = new Map<string, EnrichedItem[]>();
     for (const item of filtered) {
       let key = 'other';
-      let title = 'Other';
-      if (groupBy === 'platform') {
-        key = item.platformKey;
-        title = item.platform;
-      } else if (groupBy === 'account') {
-        key = item.serviceId;
-        title = item.accountLabel;
-      } else if (groupBy === 'workspace') {
-        key = item.workspace?.id || item.service?.workspaceId || 'unknown';
-        title = item.workspace?.name || 'Workspace';
-      }
+      if (groupBy === 'platform') key = item.platformKey;
+      else if (groupBy === 'account') key = item.serviceId;
+      else key = item.workspace?.id || item.service?.workspaceId || 'unknown';
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(item);
     }
@@ -271,410 +200,497 @@ export default function UnreadInboxPage({
     { id: 'other', label: 'Other', count: counts.byPlatform.other },
   ];
 
-  const selectStyle: CSSProperties = {
-    minWidth: 160,
+  const selectCss: CSSProperties = {
+    minWidth: 158,
+  };
+
+  const pillControl: CSSProperties = {
+    borderRadius: 999,
+    height: 40,
   };
 
   return (
     <div
+      className="tn-inbox-page"
       style={{
         height: '100%',
         overflow: 'auto',
-        padding: '28px clamp(18px, 3.5vw, 48px) 40px',
         fontFamily: FONT_FAMILY,
         color: text,
         boxSizing: 'border-box',
-        background: isDarkMode
-          ? 'radial-gradient(circle at 10% 0%, rgba(92, 78, 189, 0.2), transparent 28%), radial-gradient(circle at 90% 20%, rgba(234, 67, 53, 0.08), transparent 24%)'
-          : 'radial-gradient(circle at 8% 0%, rgba(139, 124, 246, 0.14), transparent 28%), #eef2f7',
+        background: isDarkMode ? '#000000' : '#f4f4f4',
       }}
     >
-      <div style={{ marginBottom: 22 }}>
-        <div
-          style={{
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: 1.2,
-            color: COLORS.PRIMARY,
-            marginBottom: 8,
-          }}
-        >
-          UNIFIED INBOX
-        </div>
-        <h1
-          style={{
-            margin: 0,
-            fontSize: 32,
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: text,
-          }}
-        >
-          Unread across all accounts
-        </h1>
-        <p style={{ margin: '8px 0 0', color: muted, fontSize: 14, maxWidth: 640, lineHeight: 1.5 }}>
-          Every WhatsApp chat and Gmail thread from your workspaces, in one place. Open an account
-          once so it can sync — then filter and sort here.
-        </p>
-      </div>
-
       <div
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: 12,
-          marginBottom: 20,
+          width: '100%',
+          padding: '24px 28px 40px',
+          boxSizing: 'border-box',
         }}
       >
-        <StatCard
-          isDarkMode={isDarkMode}
-          icon={<InboxOutlined />}
-          label="Unread items"
-          value={counts.total}
-          hint={`${counts.unreadSum} total badges`}
-        />
-        <StatCard
-          isDarkMode={isDarkMode}
-          icon={<AppstoreOutlined />}
-          label="Accounts reporting"
-          value={counts.accounts}
-          hint="Opened at least once"
-        />
-        <StatCard
-          isDarkMode={isDarkMode}
-          icon={<MessageOutlined />}
-          label="WhatsApp"
-          value={counts.byPlatform.whatsapp}
-          hint="Chats"
-        />
-        <StatCard
-          isDarkMode={isDarkMode}
-          icon={<MailOutlined />}
-          label="Gmail"
-          value={counts.byPlatform.gmail}
-          hint="Threads"
-        />
-      </div>
-
-      {/* Platform tabs */}
-      <div
-        style={{
-          display: 'flex',
-          gap: 8,
-          flexWrap: 'wrap',
-          marginBottom: 14,
-        }}
-      >
-        {tabs.map((tab) => {
-          const active = platformTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setPlatformTab(tab.id)}
+        {/* Header */}
+        <header
+          style={{
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+            gap: 16,
+            marginBottom: 22,
+            flexWrap: 'wrap',
+          }}
+        >
+          <div>
+            <h1
               style={{
-                border: `1px solid ${active ? COLORS.PRIMARY : border}`,
-                background: active
-                  ? isDarkMode
-                    ? 'rgba(139,124,246,0.18)'
-                    : COLORS.PRIMARY_SOFT
-                  : isDarkMode
-                    ? 'rgba(255,255,255,0.03)'
-                    : '#fff',
-                color: active ? COLORS.PRIMARY : text,
-                borderRadius: 999,
-                padding: '8px 14px',
-                cursor: 'pointer',
-                fontWeight: 600,
-                fontSize: 13,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
+                margin: 0,
+                fontSize: 36,
+                fontWeight: 650,
+                letterSpacing: '-0.03em',
+                color: text,
+                lineHeight: 1.15,
               }}
             >
-              {tab.label}
-              <span
-                style={{
-                  minWidth: 20,
-                  height: 20,
-                  borderRadius: 999,
-                  padding: '0 6px',
-                  background: active ? COLORS.PRIMARY : isDarkMode ? '#2a3545' : '#e5e7eb',
-                  color: active ? '#fff' : muted,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+              Inbox
+            </h1>
+            <p style={{ margin: '8px 0 0', color: muted, fontSize: 16, lineHeight: 1.4 }}>
+              {counts.total === 0
+                ? 'No unread messages synced yet'
+                : `${filtered.length} of ${counts.total} unread · ${counts.accounts} account${
+                    counts.accounts === 1 ? '' : 's'
+                  }`}
+            </p>
+          </div>
+        </header>
+
+        {/* Tabs — fully rounded pills */}
+        <nav className="tn-inbox-tabs">
+          {tabs.map((tab) => {
+            const active = platformTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                className={`tn-inbox-tab${active ? ' is-active' : ''}`}
+                onClick={() => setPlatformTab(tab.id)}
               >
-                {tab.count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+                <span className="tn-inbox-tab__label">{tab.label}</span>
+                <span className="tn-inbox-tab__count">{tab.count}</span>
+              </button>
+            );
+          })}
+        </nav>
 
-      {/* Filters / sort */}
-      <div
-        style={{
-          ...cardStyle(isDarkMode),
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 10,
-          alignItems: 'center',
-          marginBottom: 18,
-        }}
-      >
-        <FilterOutlined style={{ color: muted }} />
-        <Input
-          allowClear
-          prefix={<SearchOutlined style={{ color: muted }} />}
-          placeholder="Search sender, subject, account…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          style={{ flex: '1 1 220px', minWidth: 200, maxWidth: 360 }}
-        />
-        <Select
-          value={accountFilter}
-          onChange={setAccountFilter}
-          style={selectStyle}
-          options={[
-            { value: 'all', label: 'All accounts' },
-            ...accountOptions,
-          ]}
-          popupMatchSelectWidth={false}
-        />
-        <Select
-          value={workspaceFilter}
-          onChange={setWorkspaceFilter}
-          style={selectStyle}
-          options={[
-            { value: 'all', label: 'All workspaces' },
-            ...workspaces.map((w) => ({ value: w.id, label: w.name })),
-          ]}
-          popupMatchSelectWidth={false}
-        />
-        <Select
-          value={sortBy}
-          onChange={(v) => setSortBy(v)}
-          style={selectStyle}
-          suffixIcon={<SortAscendingOutlined />}
-          options={[
-            { value: 'newest', label: 'Sort: Newest' },
-            { value: 'oldest', label: 'Sort: Oldest' },
-            { value: 'most-unread', label: 'Sort: Most unread' },
-            { value: 'name-asc', label: 'Sort: Name A–Z' },
-            { value: 'account', label: 'Sort: By account' },
-          ]}
-          popupMatchSelectWidth={false}
-        />
-        <Select
-          value={groupBy}
-          onChange={(v) => setGroupBy(v)}
-          style={selectStyle}
-          options={[
-            { value: 'platform', label: 'Group: Platform' },
-            { value: 'account', label: 'Group: Account' },
-            { value: 'workspace', label: 'Group: Workspace' },
-            { value: 'none', label: 'Group: None' },
-          ]}
-          popupMatchSelectWidth={false}
-        />
-      </div>
-
-      {filtered.length === 0 ? (
-        <div style={{ ...cardStyle(isDarkMode), padding: '48px 24px' }}>
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={
-              <span style={{ color: muted }}>
-                {enriched.length === 0
-                  ? 'No unread items yet. Open each WhatsApp and Gmail account once so TextNexus can sync them here.'
-                  : 'No items match these filters. Try All accounts or clear search.'}
-              </span>
-            }
+        {/* Controls — circular rounded */}
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 10,
+            alignItems: 'center',
+            marginBottom: 16,
+          }}
+        >
+          <Input
+            allowClear
+            size="large"
+            prefix={<SearchOutlined style={{ color: faint, fontSize: 16 }} />}
+            placeholder="Search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            style={{
+              flex: '1 1 220px',
+              maxWidth: 320,
+              background: controlBg,
+              borderColor: border,
+              borderRadius: 999,
+              fontSize: 15,
+              ...pillControl,
+            }}
+          />
+          <Select
+            size="large"
+            value={accountFilter}
+            onChange={setAccountFilter}
+            style={{ ...selectCss, ...pillControl }}
+            popupClassName="tn-inbox-rounded-select"
+            options={[{ value: 'all', label: 'All accounts' }, ...accountOptions]}
+            popupMatchSelectWidth={false}
+          />
+          <Select
+            size="large"
+            value={workspaceFilter}
+            onChange={setWorkspaceFilter}
+            style={{ ...selectCss, ...pillControl }}
+            options={[
+              { value: 'all', label: 'All workspaces' },
+              ...workspaces.map((w) => ({ value: w.id, label: w.name })),
+            ]}
+            popupMatchSelectWidth={false}
+          />
+          <Select
+            size="large"
+            value={sortBy}
+            onChange={(v) => setSortBy(v)}
+            style={{ ...selectCss, ...pillControl }}
+            options={[
+              { value: 'newest', label: 'Newest' },
+              { value: 'oldest', label: 'Oldest' },
+              { value: 'most-unread', label: 'Most unread' },
+              { value: 'name-asc', label: 'Name A–Z' },
+              { value: 'account', label: 'By account' },
+            ]}
+            popupMatchSelectWidth={false}
+          />
+          <Select
+            size="large"
+            value={groupBy}
+            onChange={(v) => setGroupBy(v)}
+            style={{ ...selectCss, ...pillControl }}
+            options={[
+              { value: 'none', label: 'No grouping' },
+              { value: 'platform', label: 'Group by platform' },
+              { value: 'account', label: 'Group by account' },
+              { value: 'workspace', label: 'Group by workspace' },
+            ]}
+            popupMatchSelectWidth={false}
           />
         </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {groups.map((group) => (
-            <section key={group.key}>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  gap: 10,
-                  marginBottom: 10,
-                }}
-              >
-                <Text strong style={{ color: text, fontSize: 15 }}>
-                  {group.title}
-                </Text>
-                <span style={{ color: muted, fontSize: 12 }}>
-                  {group.items.length} item{group.items.length === 1 ? '' : 's'}
-                </span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {group.items.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => openItem(item)}
+
+        <style>{`
+          .tn-inbox-page .tn-inbox-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+          }
+          .tn-inbox-page .tn-inbox-tab {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+            display: inline-flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+            height: 40px !important;
+            min-height: 40px !important;
+            max-height: 40px !important;
+            padding: 0 16px !important;
+            border-radius: 999px !important;
+            border: 1px solid ${border} !important;
+            background: ${isDarkMode ? '#141414' : '#ffffff'} !important;
+            color: ${text} !important;
+            cursor: pointer;
+            font-family: ${FONT_FAMILY} !important;
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            line-height: 1 !important;
+            vertical-align: middle;
+            transform: none !important;
+          }
+          .tn-inbox-page .tn-inbox-tab.is-active {
+            border-color: ${isDarkMode ? '#ffffff' : '#111111'};
+            background: ${isDarkMode ? '#ffffff' : '#111111'};
+            color: ${isDarkMode ? '#111111' : '#ffffff'};
+          }
+          .tn-inbox-page .tn-inbox-tab__label,
+          .tn-inbox-page .tn-inbox-tab__count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            height: 22px;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+          }
+          .tn-inbox-page .tn-inbox-tab__label {
+            /* Gilroy glyph ink sits high vs geometric center */
+            transform: translateY(2px);
+          }
+          .tn-inbox-page .tn-inbox-tab__count {
+            min-width: 22px;
+            padding: 0 7px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: ${muted};
+            background: ${isDarkMode ? '#222222' : '#ebebeb'};
+          }
+          .tn-inbox-page .tn-inbox-tab.is-active .tn-inbox-tab__count {
+            color: ${isDarkMode ? '#ffffff' : '#111111'};
+            background: ${isDarkMode ? '#111111' : '#ffffff'};
+          }
+          .tn-inbox-page .ant-select-selector {
+            border-radius: 999px !important;
+            height: 40px !important;
+            align-items: center !important;
+            font-size: 15px !important;
+          }
+          .tn-inbox-page .ant-input-affix-wrapper {
+            border-radius: 999px !important;
+            font-size: 15px !important;
+          }
+          .tn-inbox-page .ant-select-selection-item,
+          .tn-inbox-page .ant-select-selection-placeholder {
+            font-size: 15px !important;
+            line-height: 38px !important;
+          }
+        `}</style>
+
+        {/* List */}
+        <div
+          style={{
+            background: surface,
+            border: `1px solid ${border}`,
+            borderRadius: 20,
+            overflow: 'hidden',
+            minHeight: 320,
+          }}
+        >
+          {filtered.length === 0 ? (
+            <div
+              style={{
+                padding: '72px 24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  <div style={{ color: muted, fontSize: 16, maxWidth: 360, lineHeight: 1.5 }}>
+                    {enriched.length === 0 ? (
+                      <>
+                        Nothing here yet.
+                        <br />
+                        Open a WhatsApp or Gmail account once to start syncing unread items.
+                      </>
+                    ) : (
+                      'No messages match your filters.'
+                    )}
+                  </div>
+                }
+              />
+            </div>
+          ) : (
+            groups.map((group, gi) => (
+              <section key={group.key}>
+                {group.title ? (
+                  <div
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 14,
-                      width: '100%',
-                      textAlign: 'left',
-                      border: `1px solid ${border}`,
-                      borderRadius: 14,
-                      padding: '12px 14px',
-                      cursor: 'pointer',
-                      background: isDarkMode ? COLORS.APP_BG_ELEVATED : '#fff',
-                      color: text,
+                      padding: '12px 18px 10px',
+                      fontSize: 13,
+                      fontWeight: 650,
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      color: faint,
+                      background: isDarkMode ? '#080808' : '#fafafa',
+                      borderTop: gi === 0 ? 'none' : `1px solid ${border}`,
+                      borderBottom: `1px solid ${border}`,
                     }}
                   >
-                    <div style={{ position: 'relative', flexShrink: 0 }}>
-                      {item.icon ? (
-                        <img
-                          src={item.icon}
-                          alt=""
+                    {group.title}
+                    <span style={{ fontWeight: 500, marginLeft: 8, color: muted }}>
+                      {group.items.length}
+                    </span>
+                  </div>
+                ) : null}
+
+                {group.items.map((item, idx) => {
+                  const isHover = hoveredId === item.id;
+                  const showDivider = idx < group.items.length - 1;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => openItem(item)}
+                      onMouseEnter={() => setHoveredId(item.id)}
+                      onMouseLeave={() => setHoveredId(null)}
+                      style={{
+                        display: 'flex',
+                        width: '100%',
+                        alignItems: 'center',
+                        gap: 16,
+                        padding: '16px 18px',
+                        border: 'none',
+                        borderBottom: showDivider ? `1px solid ${border}` : 'none',
+                        background: isHover ? rowHover : 'transparent',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontFamily: FONT_FAMILY,
+                        transition: 'background 0.12s ease',
+                      }}
+                    >
+                      <div style={{ position: 'relative', flexShrink: 0 }}>
+                        {item.icon ? (
+                          <img
+                            src={item.icon}
+                            alt=""
+                            style={{
+                              width: 48,
+                              height: 48,
+                              borderRadius: '50%',
+                              objectFit: 'cover',
+                              display: 'block',
+                              background: isDarkMode ? '#1a1a1a' : '#eee',
+                            }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: 48,
+                              height: 48,
+                              borderRadius: '50%',
+                              overflow: 'hidden',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              background: isDarkMode ? '#1a1a1a' : '#eee',
+                            }}
+                          >
+                            <ServiceLogo
+                              iconType={item.service?.iconType || 'custom'}
+                              customIcon={item.service?.customIcon}
+                              url={item.service?.url}
+                              size={30}
+                            />
+                          </div>
+                        )}
+                        <span
                           style={{
-                            width: 44,
-                            height: 44,
-                            borderRadius: '50%',
-                            objectFit: 'cover',
-                            display: 'block',
-                            background: isDarkMode ? '#1a2433' : '#eee',
-                          }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: 44,
-                            height: 44,
+                            position: 'absolute',
+                            right: -2,
+                            bottom: -2,
+                            width: 20,
+                            height: 20,
                             borderRadius: '50%',
                             overflow: 'hidden',
+                            background: surface,
+                            border: `1px solid ${border}`,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            background: isDarkMode ? '#1a2433' : '#eee',
                           }}
                         >
                           <ServiceLogo
                             iconType={item.service?.iconType || 'custom'}
                             customIcon={item.service?.customIcon}
                             url={item.service?.url}
-                            size={30}
+                            size={13}
                           />
-                        </div>
-                      )}
-                      <span
-                        style={{
-                          position: 'absolute',
-                          right: -2,
-                          bottom: -2,
-                          width: 18,
-                          height: 18,
-                          borderRadius: 5,
-                          overflow: 'hidden',
-                          background: isDarkMode ? '#0b1220' : '#fff',
-                          border: `1px solid ${border}`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <ServiceLogo
-                          iconType={item.service?.iconType || 'custom'}
-                          customIcon={item.service?.customIcon}
-                          url={item.service?.url}
-                          size={14}
-                        />
-                      </span>
-                    </div>
+                        </span>
+                      </div>
 
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          display: 'flex',
-                          gap: 8,
-                          alignItems: 'baseline',
-                          marginBottom: 2,
-                        }}
-                      >
-                        <Text
-                          strong
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
                           style={{
-                            color: text,
+                            display: 'flex',
+                            alignItems: 'baseline',
+                            gap: 12,
+                            marginBottom: 3,
+                          }}
+                        >
+                          <span
+                            style={{
+                              flex: 1,
+                              minWidth: 0,
+                              fontSize: 17,
+                              fontWeight: 600,
+                              color: text,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {item.chatName}
+                          </span>
+                          <span
+                            style={{
+                              flexShrink: 0,
+                              fontSize: 13,
+                              color: faint,
+                              fontVariantNumeric: 'tabular-nums',
+                            }}
+                          >
+                            {formatInboxTime(item.updatedAt)}
+                          </span>
+                        </div>
+                        <div
+                          style={{
                             fontSize: 14,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            flex: 1,
-                          }}
-                        >
-                          {item.chatName}
-                        </Text>
-                        <span style={{ color: muted, fontSize: 11, flexShrink: 0 }}>
-                          {formatInboxTime(item.updatedAt)}
-                        </span>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: COLORS.PRIMARY,
-                          marginBottom: 3,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {item.accountLabel}
-                        {item.workspace?.name ? ` · ${item.workspace.name}` : ''}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Text
-                          style={{
                             color: muted,
-                            fontSize: 12,
+                            marginBottom: 4,
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
-                            flex: 1,
                           }}
                         >
-                          {item.preview || 'New message'}
-                        </Text>
-                        <span
+                          {item.accountLabel}
+                          {item.workspace?.name ? ` · ${item.workspace.name}` : ''}
+                        </div>
+                        <div
                           style={{
-                            flexShrink: 0,
-                            minWidth: 22,
-                            height: 22,
-                            padding: '0 7px',
-                            borderRadius: 999,
-                            background: COLORS.PRIMARY,
-                            color: '#fff',
-                            fontSize: 11,
-                            fontWeight: 700,
-                            display: 'inline-flex',
+                            display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center',
+                            gap: 12,
                           }}
                         >
-                          {item.unread > 99 ? '99+' : item.unread}
-                        </span>
+                          <span
+                            style={{
+                              flex: 1,
+                              minWidth: 0,
+                              fontSize: 14,
+                              color: faint,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {item.preview || 'New message'}
+                          </span>
+                          <span
+                            style={{
+                              flexShrink: 0,
+                              minWidth: 26,
+                              height: 26,
+                              padding: '0 8px',
+                              borderRadius: 999,
+                              background: isDarkMode ? '#ffffff' : '#111111',
+                              color: isDarkMode ? '#111111' : '#ffffff',
+                              fontSize: 13,
+                              fontWeight: 700,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontVariantNumeric: 'tabular-nums',
+                            }}
+                          >
+                            {item.unread > 99 ? '99+' : item.unread}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </section>
-          ))}
+                    </button>
+                  );
+                })}
+              </section>
+            ))
+          )}
         </div>
-      )}
+
+        <p
+          style={{
+            margin: '16px 4px 0',
+            fontSize: 14,
+            color: faint,
+            lineHeight: 1.45,
+          }}
+        >
+          Tip: open each WhatsApp or Gmail account once so unread items can appear here.
+        </p>
+      </div>
     </div>
   );
 }

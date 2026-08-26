@@ -1,7 +1,7 @@
 {
-  "app": "TEXTNEXUS",
-  "generatedAt": "2026-07-21T11:50:56.198Z",
-  "master": "icon-1024.png",
+  "app": "ARCTICSWITCH",
+  "generatedAt": "2026-08-26T05:45:00.000Z",
+  "master": "logo_light.png",
   "sizes": [
     1024,
     512,
@@ -26,7 +26,7 @@
       "icon-16.png"
     ],
     "ico": "icon.ico",
-    "icns": "icon.icns",
+    "icns": "derived-from-build/icon.png-by-electron-builder",
     "linux": "icon.png (512) / icon-512.png"
   }
 }

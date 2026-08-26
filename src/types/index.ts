@@ -1,4 +1,4 @@
-/** Shared domain types for TextNexus */
+/** Shared domain types for ArcticSwitch */
 
 export type ServiceIconType = string;
 
@@ -270,32 +270,6 @@ export interface ElectronAPI {
     error?: string;
   }>;
   leadGenLaunch?: () => Promise<{ ok: boolean; url?: string; error?: string }>;
-  voiceSpeechStart?: (options?: {
-    phrases?: string[];
-  }) => Promise<{ ok: boolean; error?: string }>;
-  voiceSpeechStop?: () => Promise<{ ok: boolean }>;
-  voiceSpeechStatus?: () => Promise<{ available: boolean; listening: boolean }>;
-  voiceRecognizePcm?: (payload: {
-    pcm: number[];
-    sampleRate: number;
-    phrases?: string[];
-  }) => Promise<{
-    ok: boolean;
-    text?: string;
-    confidence?: number;
-    error?: string;
-  }>;
-  onVoiceSpeechResult?: (
-    callback: (data: { text?: string }) => void
-  ) => () => void;
-  onVoiceSpeechStatus?: (
-    callback: (data: {
-      status?: 'listening' | 'stopped' | 'error' | 'hint' | 'fallback' | 'mic-info';
-      message?: string;
-      engine?: string;
-      micName?: string;
-    }) => void
-  ) => () => void;
 }
 
 export interface PopoutServicePayload {

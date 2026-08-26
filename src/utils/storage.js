@@ -137,7 +137,7 @@ export class EnhancedStorage {
   // IndexedDB operations
   async saveToIndexedDB(key, data) {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open('TextNexusDB', 1);
+      const request = indexedDB.open('ArcticSwitchDB', 1);
       
       request.onerror = () => reject(request.error);
       
@@ -163,7 +163,7 @@ export class EnhancedStorage {
 
   async loadFromIndexedDB(key) {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open('TextNexusDB', 1);
+      const request = indexedDB.open('ArcticSwitchDB', 1);
       
       request.onerror = () => reject(request.error);
       

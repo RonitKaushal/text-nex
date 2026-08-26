@@ -41,10 +41,6 @@ const INVOKE = [
   'lead-gen-status',
   'lead-gen-install',
   'lead-gen-launch',
-  'voice-speech-start',
-  'voice-speech-stop',
-  'voice-speech-status-query',
-  'voice-recognize-pcm',
 ];
 
 function safeInvoke(channel, ...args) {
@@ -110,20 +106,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   leadGenStatus: () => safeInvoke('lead-gen-status'),
   leadGenInstall: () => safeInvoke('lead-gen-install'),
   leadGenLaunch: () => safeInvoke('lead-gen-launch'),
-  voiceSpeechStart: (options) => safeInvoke('voice-speech-start', options),
-  voiceSpeechStop: () => safeInvoke('voice-speech-stop'),
-  voiceSpeechStatus: () => safeInvoke('voice-speech-status-query'),
-  voiceRecognizePcm: (payload) => safeInvoke('voice-recognize-pcm', payload),
-  onVoiceSpeechResult: (callback) => {
-    const handler = (_event, data) => callback(data);
-    ipcRenderer.on('voice-speech-result', handler);
-    return () => ipcRenderer.removeListener('voice-speech-result', handler);
-  },
-  onVoiceSpeechStatus: (callback) => {
-    const handler = (_event, data) => callback(data);
-    ipcRenderer.on('voice-speech-status', handler);
-    return () => ipcRenderer.removeListener('voice-speech-status', handler);
-  },
   onSshData: (callback) => {
     const handler = (_event, payload) => callback(payload);
     ipcRenderer.on('ssh-data', handler);

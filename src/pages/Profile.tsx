@@ -15,6 +15,7 @@ import {
   Popover,
   Progress,
   Tooltip,
+  Modal,
 } from 'antd';
 import {
   UserOutlined,
@@ -30,11 +31,13 @@ import {
   CloudDownloadOutlined,
   InfoCircleOutlined,
   CloudSyncOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
 import { useAppUpdate } from '../context/AppUpdateContext';
 import type { LicenseInfo, UserProfile } from '../types';
 import { isLicenseExpired } from '../utils/licenseStatus';
+import { getStoredUsername } from '../utils/username';
 import { APP_TOP_BAR_HEIGHT, APP_BG_GRADIENT, COLORS } from '../constants';
 import { BrandLogo, RenewLicenseModal } from '../components/common';
 import SettingsPanel from '../components/SettingsPanel';
@@ -89,12 +92,12 @@ function LicenseCard({
         padding: 14,
         borderRadius: 10,
         border: `1px solid ${
-          isActive ? '#8b7cf6' : isDarkMode ? COLORS.APP_BORDER : '#f0f0f0'
+          isActive ? '#ffffff' : isDarkMode ? COLORS.APP_BORDER : '#f0f0f0'
         }`,
         background: isActive
           ? isDarkMode
             ? '#1a1a1a'
-            : '#f0edff'
+            : 'rgba(255,255,255,0.12)'
           : isDarkMode
             ? COLORS.APP_BG_PANEL
             : '#fafafa',
@@ -155,7 +158,7 @@ export default function Profile({
   onClearAllData,
 }: ProfilePageProps) {
   const { token } = theme.useToken();
-  const { userProfile, refreshProfile, renewLicense } = useAuth();
+  const { userProfile, refreshProfile, renewLicense, logout } = useAuth();
   const {
     checking: checkingUpdate,
     downloading,
@@ -260,7 +263,8 @@ export default function Profile({
   };
 
   const phone = profile?.phone ? String(profile.phone) : '—';
-  const displayName = phone !== '—' ? `+${phone}` : 'User';
+  const storedUsername = getStoredUsername();
+  const displayName = storedUsername || (phone !== '—' ? `+${phone}` : 'User');
   const expireAt = profile?.activeLicense?.expireAt;
   const expired = isLicenseExpired(profile);
   const expiryShort = expireAt
@@ -333,17 +337,17 @@ export default function Profile({
                 borderRadius: 999,
                 fontSize: 12,
                 fontWeight: 500,
-                color: expired ? '#ff7875' : isDarkMode ? '#9fdb9f' : '#389e0d',
+                color: expired ? '#d9d9d9' : isDarkMode ? '#d9d9d9' : '#d9d9d9',
                 background: expired
-                  ? 'rgba(255, 77, 79, 0.12)'
+                  ? 'rgba(255,255,255,0.16)'
                   : isDarkMode
-                    ? 'rgba(82, 196, 26, 0.12)'
-                    : '#f6ffed',
+                    ? 'rgba(255,255,255,0.16)'
+                    : 'rgba(255,255,255,0.08)',
                 border: `1px solid ${
                   expired
-                    ? 'rgba(255, 77, 79, 0.35)'
+                    ? 'rgba(255,255,255,0.16)'
                     : isDarkMode
-                      ? 'rgba(82, 196, 26, 0.3)'
+                      ? 'rgba(255,255,255,0.16)'
                       : '#b7eb8f'
                 }`,
               }}
@@ -427,7 +431,7 @@ export default function Profile({
                 icon={
                   <InfoCircleOutlined
                     style={{
-                      color: updateAvailable ? '#52c41a' : '#ff4d4f',
+                      color: updateAvailable ? '#ffffff' : '#ffffff',
                       fontSize: 16,
                     }}
                   />
@@ -436,7 +440,7 @@ export default function Profile({
                   width: 36,
                   height: 36,
                   padding: 0,
-                  color: updateAvailable ? '#52c41a' : '#ff4d4f',
+                  color: updateAvailable ? '#ffffff' : '#ffffff',
                 }}
                 aria-label="Update info"
               />
@@ -462,9 +466,9 @@ export default function Profile({
               }}
               style={{
                 ...headerBtnBase,
-                color: '#fff',
-                background: updateAvailable ? '#52c41a' : '#ff4d4f',
-                border: `1px solid ${updateAvailable ? '#389e0d' : '#cf1322'}`,
+                color: '#111111',
+                background: '#ffffff',
+                border: '1px solid #d9d9d9',
                 fontWeight: 600,
               }}
             >
@@ -484,8 +488,8 @@ export default function Profile({
                 border: 'none',
                 paddingInline: 16,
                 background:
-                  'linear-gradient(135deg, #a99bf8 0%, #8b7cf6 55%, #6f5ee0 100%)',
-                boxShadow: '0 4px 14px rgba(139, 124, 246, 0.35)',
+                  'linear-gradient(135deg, #ffffff 0%, #ffffff 55%, #b0b0b0 100%)',
+                boxShadow: '0 4px 14px rgba(255,255,255,0.16)',
               }}
             >
               Renew License
@@ -547,6 +551,55 @@ export default function Profile({
               </button>
             );
           })}
+
+          <div style={{ flex: 1, minHeight: 12 }} />
+
+          <button
+            type="button"
+            onClick={() => {
+              Modal.confirm({
+                title: 'Log out?',
+                content: 'You will need your phone and license key to sign in again.',
+                okText: 'Log out',
+                okType: 'danger',
+                cancelText: 'Cancel',
+                centered: true,
+                onOk: async () => {
+                  await logout();
+                  message.success('Logged out');
+                },
+              });
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              width: '100%',
+              padding: '10px 12px',
+              borderRadius: 10,
+              border: 'none',
+              cursor: 'pointer',
+              textAlign: 'left',
+              fontSize: 14,
+              fontWeight: 500,
+              color: isDarkMode ? '#f5f5f5' : '#141414',
+              background: 'transparent',
+              transition: 'background 0.15s, color 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = isDarkMode
+                ? 'rgba(255,255,255,0.08)'
+                : 'rgba(0,0,0,0.04)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            <span style={{ fontSize: 16, lineHeight: 1 }}>
+              <LogoutOutlined />
+            </span>
+            Log out
+          </button>
         </nav>
 
         {/* Content */}
@@ -645,6 +698,15 @@ export default function Profile({
                     bordered
                     labelStyle={{ width: 140 }}
                   >
+                    <Descriptions.Item
+                      label={
+                        <Space>
+                          <UserOutlined /> Username
+                        </Space>
+                      }
+                    >
+                      {storedUsername || '—'}
+                    </Descriptions.Item>
                     <Descriptions.Item
                       label={
                         <Space>
