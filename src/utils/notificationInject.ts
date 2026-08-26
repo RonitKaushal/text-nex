@@ -110,6 +110,40 @@ export function buildNotificationBridgeScript(opts: {
     } catch (e) {}
   };
 
+  window.__tnLastInboxKey = '';
+  window.__tnSanitizeInboxIcon = function(icon) {
+    if (!icon || typeof icon !== 'string') return '';
+    if (icon.indexOf('data:') === 0 && icon.length > 4096) return '';
+    return icon.slice(0, 8192);
+  };
+  /** Per-chat unread list for the unified desktop inbox. */
+  window.__tnReportUnreadInbox = function(chats) {
+    var bridge = api();
+    if (!bridge || !bridge.reportUnreadInbox) return;
+    var list = Array.isArray(chats) ? chats : [];
+    var cleaned = [];
+    for (var i = 0; i < list.length && cleaned.length < 40; i++) {
+      var c = list[i] || {};
+      var name = String(c.name || '').trim();
+      var unread = parseInt(c.unread, 10);
+      if (!name || !(unread > 0)) continue;
+      cleaned.push({
+        name: name,
+        unread: unread,
+        preview: String(c.preview || '').trim().slice(0, 160),
+        icon: window.__tnSanitizeInboxIcon(c.icon || '')
+      });
+    }
+    var key = cleaned
+      .map(function(c) { return c.name + ':' + c.unread + ':' + c.preview; })
+      .join('|');
+    if (key === window.__tnLastInboxKey) return;
+    window.__tnLastInboxKey = key;
+    try {
+      bridge.reportUnreadInbox({ serviceId: ${sid}, chats: cleaned });
+    } catch (e) {}
+  };
+
   /** Open a chat/DM by contact name (used when user clicks the OS notification). */
   window.__tnOpenChatByName = function(chatName) {
     var target = String(chatName || '').trim().toLowerCase();
@@ -180,6 +214,36 @@ export function buildNotificationBridgeScript(opts: {
       var label = (links[j].getAttribute('aria-label') || links[j].textContent || '').trim().toLowerCase();
       if (label && (label === target || label.indexOf(target) !== -1)) {
         try { links[j].click(); return true; } catch (e) {}
+      }
+    }
+
+    // Gmail: click unread thread rows by sender or subject
+    var gmailRows = document.querySelectorAll('tr.zA, tr[jsmodel], div[role="row"].zA');
+    for (var g = 0; g < gmailRows.length; g++) {
+      var grow = gmailRows[g];
+      var gText = (grow.getAttribute('aria-label') || grow.textContent || '').trim().toLowerCase();
+      var gSender = '';
+      var gSub = '';
+      var gs =
+        grow.querySelector('span.zF') ||
+        grow.querySelector('.yW span[email]') ||
+        grow.querySelector('.yP') ||
+        grow.querySelector('.yW .bA4 span');
+      var gj =
+        grow.querySelector('.bog') ||
+        grow.querySelector('span.bqe') ||
+        grow.querySelector('.y6 span');
+      if (gs) gSender = (gs.getAttribute('name') || gs.getAttribute('email') || gs.textContent || '').trim().toLowerCase();
+      if (gj) gSub = (gj.textContent || '').trim().toLowerCase();
+      if (
+        (gSender && (gSender === target || gSender.indexOf(target) !== -1 || target.indexOf(gSender) !== -1)) ||
+        (gSub && (gSub === target || gSub.indexOf(target) !== -1 || target.indexOf(gSub) !== -1)) ||
+        (gText && gText.indexOf(target) !== -1)
+      ) {
+        try {
+          grow.click();
+          return true;
+        } catch (e) {}
       }
     }
     return false;
@@ -260,6 +324,62 @@ export function buildTitleWatcherScript(): string {
     return { name: name, icon: icon, preview: preview };
   }
 
+  function metaFromUnreadEl(el) {
+    if (!el) return null;
+    var root =
+      el.closest('[role="listitem"], [role="row"], a, li, article') ||
+      el.closest('div[tabindex]') ||
+      el.parentElement;
+    if (!root) return null;
+    var img = root.querySelector('img[src]');
+    var nameEl =
+      root.querySelector('span[title], [dir="auto"], h2, h3, strong') ||
+      root.querySelector('span');
+    var name = nameEl
+      ? (nameEl.getAttribute('title') || nameEl.textContent || '').trim()
+      : '';
+    if (!name) return null;
+    if (/instagram|messenger|telegram|facebook|whatsapp|direct|chats?/i.test(name) && name.length < 22) {
+      return null;
+    }
+    var unread = 1;
+    var label = el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent || '';
+    var m = String(label).match(/(\\d+)/);
+    if (m) unread = parseInt(m[1], 10) || 1;
+    else {
+      var n = parseInt(String(el.textContent || '').replace(/\\D/g, ''), 10);
+      if (n > 0) unread = n;
+    }
+    var previewEl =
+      root.querySelector('[dir="auto"] span') ||
+      root.querySelector('span[dir="auto"]') ||
+      null;
+    var preview = '';
+    if (previewEl && previewEl !== nameEl) {
+      preview = (previewEl.textContent || '').trim().replace(/\\s+/g, ' ').slice(0, 120);
+    }
+    var icon =
+      img && typeof window.__tnAvatarFromImg === 'function'
+        ? window.__tnAvatarFromImg(img)
+        : (img && (img.currentSrc || img.src)) || '';
+    return { name: name, unread: unread, preview: preview, icon: icon };
+  }
+
+  function snapshotSoftInbox() {
+    var map = {};
+    var nodes = document.querySelectorAll(
+      '[aria-label*="unread" i], [data-testid="icon-unread-count"], span[data-testid="icon-unread-count"], [aria-label*="new message" i]'
+    );
+    for (var i = 0; i < nodes.length; i++) {
+      var meta = metaFromUnreadEl(nodes[i]);
+      if (!meta || !meta.name) continue;
+      if (!map[meta.name] || meta.unread >= map[meta.name].unread) {
+        map[meta.name] = meta;
+      }
+    }
+    return Object.keys(map).map(function(k) { return map[k]; });
+  }
+
   function extract() {
     var t = document.title || '';
     var countMatch = t.match(/\\((\\d+)\\)/) || t.match(/^(\\d+)\\s*[·•|\\-]/);
@@ -295,6 +415,22 @@ export function buildTitleWatcherScript(): string {
     }
     if (typeof window.__tnReportUnread === 'function') {
       window.__tnReportUnread(badgeCount);
+    }
+
+    var softChats = snapshotSoftInbox();
+    if (typeof window.__tnReportUnreadInbox === 'function') {
+      if (softChats.length > 0) {
+        window.__tnReportUnreadInbox(softChats);
+      } else if (info && info.chatName && badgeCount > 0) {
+        window.__tnReportUnreadInbox([{
+          name: info.chatName,
+          unread: badgeCount || 1,
+          preview: info.body || '',
+          icon: info.icon || ''
+        }]);
+      } else {
+        window.__tnReportUnreadInbox([]);
+      }
     }
 
     if (window.__tnNotificationsEnabled === false) return;
@@ -352,6 +488,14 @@ export function buildWhatsAppWatcherScript(_opts: {
   var primed = false;
   var prevByChat = {};
   var lastBadgeTotal = -1;
+
+  function reportInbox(map) {
+    if (typeof window.__tnReportUnreadInbox !== 'function') return;
+    var chats = Object.keys(map).map(function(k) {
+      return map[k];
+    });
+    window.__tnReportUnreadInbox(chats);
+  }
 
   function chatRowFromBadge(badge) {
     if (!badge) return null;
@@ -490,6 +634,7 @@ export function buildWhatsAppWatcherScript(_opts: {
   function tick() {
     var map = snapshot();
     report(totalUnread(map));
+    reportInbox(map);
 
     if (window.__tnNotificationsEnabled === false) {
       prevByChat = map;
@@ -541,6 +686,162 @@ export function buildWhatsAppWatcherScript(_opts: {
     try {
       obs.observe(document.body, { childList: true, subtree: true, characterData: true });
     } catch (e2) {}
+  } catch (e) {}
+})();
+`;
+}
+
+/** Gmail inbox — scrape unread threads for the unified desktop inbox. */
+export function buildGmailWatcherScript(_opts?: {
+  serviceId?: string;
+  serviceName?: string;
+}): string {
+  return `
+(function() {
+  if (window.__textNexusGmailWatch) return;
+  window.__textNexusGmailWatch = true;
+
+  var lastBadge = -1;
+
+  function sanitizeIcon(icon) {
+    if (typeof window.__tnSanitizeInboxIcon === 'function') {
+      return window.__tnSanitizeInboxIcon(icon);
+    }
+    if (!icon || typeof icon !== 'string') return '';
+    if (icon.indexOf('data:') === 0 && icon.length > 4096) return '';
+    return icon.slice(0, 8192);
+  }
+
+  function rowIsUnread(row) {
+    if (!row) return false;
+    var cls = row.getAttribute('class') || '';
+    if (cls.indexOf('zE') !== -1) return true;
+    if (row.classList && row.classList.contains('zE')) return true;
+    var aria = (
+      row.getAttribute('aria-label') ||
+      row.getAttribute('aria-labelledby') ||
+      ''
+    ).toLowerCase();
+    if (aria.indexOf('unread') !== -1) return true;
+    if (row.querySelector('span.zF, .bqe, span.bqe')) return true;
+    return false;
+  }
+
+  function metaFromRow(row) {
+    var senderEl =
+      row.querySelector('span.zF') ||
+      row.querySelector('.yW span[email]') ||
+      row.querySelector('.yP') ||
+      row.querySelector('.yW .bA4 span') ||
+      row.querySelector('span[email]');
+    var subjectEl =
+      row.querySelector('.bog') ||
+      row.querySelector('span.bqe') ||
+      row.querySelector('.y6 .bog') ||
+      row.querySelector('.y6 span[id]');
+    var snippetEl = row.querySelector('.y2');
+    var img = row.querySelector('img[src]');
+
+    var sender = senderEl
+      ? (senderEl.getAttribute('name') ||
+          senderEl.getAttribute('email') ||
+          senderEl.textContent ||
+          '').trim()
+      : '';
+    var subject = subjectEl ? (subjectEl.textContent || '').trim() : '';
+    var snippet = snippetEl
+      ? (snippetEl.textContent || '').replace(/^\\s*[-–—]\\s*/, '').trim()
+      : '';
+    if (!sender && !subject) return null;
+
+    var name = sender || subject;
+    var preview =
+      subject && sender ? subject : snippet || subject || 'Unread email';
+    preview = preview.replace(/\\s+/g, ' ').slice(0, 120);
+
+    var icon = '';
+    if (img && typeof window.__tnAvatarFromImg === 'function') {
+      icon = window.__tnAvatarFromImg(img);
+    } else if (img) {
+      icon = img.currentSrc || img.src || '';
+    }
+
+    return {
+      name: name,
+      unread: 1,
+      preview: preview,
+      icon: sanitizeIcon(icon),
+      threadKey: (sender || '') + '|' + (subject || name)
+    };
+  }
+
+  function snapshot() {
+    var map = {};
+    var rows = document.querySelectorAll(
+      'tr.zA, tr[jsmodel].zA, div[role="main"] tr.zA, div[role="row"].zA'
+    );
+    if (!rows.length) {
+      rows = document.querySelectorAll('tr.zA');
+    }
+    for (var i = 0; i < rows.length && Object.keys(map).length < 40; i++) {
+      var row = rows[i];
+      if (!rowIsUnread(row)) continue;
+      var meta = metaFromRow(row);
+      if (!meta) continue;
+      if (!map[meta.threadKey]) {
+        map[meta.threadKey] = {
+          name: meta.name,
+          unread: 1,
+          preview: meta.preview,
+          icon: meta.icon
+        };
+      }
+    }
+    return Object.keys(map).map(function(k) { return map[k]; });
+  }
+
+  function inboxBadgeCount() {
+    var links = document.querySelectorAll(
+      'a[href*="#inbox"], a[aria-label*="Inbox" i], a[aria-label*="inbox" i]'
+    );
+    for (var i = 0; i < links.length; i++) {
+      var t = links[i].getAttribute('aria-label') || links[i].textContent || '';
+      var m = t.match(/inbox[^0-9]*(\\d+)/i) || t.match(/(\\d+)\\s*unread/i);
+      if (m) {
+        var n = parseInt(m[1], 10);
+        if (!isNaN(n) && n >= 0) return n;
+      }
+    }
+    var title = document.title || '';
+    var tm = title.match(/Inbox\\s*\\((\\d+)\\)/i) || title.match(/\\((\\d+)\\)/);
+    if (tm) return parseInt(tm[1], 10) || 0;
+    return -1;
+  }
+
+  function tick() {
+    var chats = snapshot();
+    var badge = inboxBadgeCount();
+    if (badge < 0) badge = chats.length;
+    if (typeof window.__tnReportUnread === 'function' && badge !== lastBadge) {
+      lastBadge = badge;
+      window.__tnReportUnread(badge);
+    }
+    if (typeof window.__tnReportUnreadInbox === 'function') {
+      window.__tnReportUnreadInbox(chats);
+    }
+  }
+
+  setInterval(tick, 1500);
+  setTimeout(tick, 1000);
+  setTimeout(tick, 3000);
+  setTimeout(tick, 6000);
+  try {
+    var obs = new MutationObserver(function() { setTimeout(tick, 180); });
+    obs.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
   } catch (e) {}
 })();
 `;

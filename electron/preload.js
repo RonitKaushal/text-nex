@@ -69,6 +69,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('service-unread', handler);
     return () => ipcRenderer.removeListener('service-unread', handler);
   },
+  onServiceUnreadInbox: (callback) => {
+    const handler = (_event, data) => callback(data);
+    ipcRenderer.on('service-unread-inbox', handler);
+    return () => ipcRenderer.removeListener('service-unread-inbox', handler);
+  },
   getUserAgent: (serviceType) => safeInvoke('get-user-agent', serviceType),
   getWhatsAppUserAgent: () => safeInvoke('get-whatsapp-user-agent'),
   platform: process.platform,

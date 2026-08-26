@@ -161,6 +161,12 @@ export interface ElectronAPI {
   onServiceUnread?: (
     callback: (data: { serviceId: string; count: number }) => void
   ) => () => void;
+  onServiceUnreadInbox?: (
+    callback: (data: {
+      serviceId: string;
+      chats: Array<{ name: string; unread: number; preview?: string; icon?: string }>;
+    }) => void
+  ) => () => void;
   getUserAgent: (serviceType?: string) => Promise<string>;
   getWhatsAppUserAgent: () => Promise<string>;
   platform: string;

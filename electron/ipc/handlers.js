@@ -89,6 +89,32 @@ export function registerIpcHandlers({ getMainWindow, store, notificationManager,
     }
   });
 
+  // Per-chat unread inbox (WhatsApp + soft scrapers) → renderer
+  ipcMain.on('guest-unread-inbox', (_event, data) => {
+    try {
+      const serviceId = data?.serviceId;
+      if (!serviceId) return;
+      const raw = Array.isArray(data?.chats) ? data.chats : [];
+      const chats = raw
+        .map((c) => ({
+          name: String(c?.name || '').trim(),
+          unread: Math.max(0, Math.floor(Number(c?.unread) || 0)),
+          preview: String(c?.preview || '').trim().slice(0, 160),
+          icon: String(c?.icon || '').slice(0, 8192),
+        }))
+        .filter((c) => c.name && c.unread > 0)
+        .slice(0, 40);
+      const payload = { serviceId, chats };
+      for (const win of BrowserWindow.getAllWindows()) {
+        if (!win.isDestroyed()) {
+          win.webContents.send('service-unread-inbox', payload);
+        }
+      }
+    } catch (e) {
+      console.warn('[unread-inbox] forward failed:', e?.message || e);
+    }
+  });
+
   ipcMain.handle(IPC_CHANNELS.SHOW_NOTIFICATION, async (_event, data) => {
     try {
       if (store.get('notificationsEnabled') === false) {

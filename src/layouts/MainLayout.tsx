@@ -55,6 +55,7 @@ interface MainLayoutProps {
   onCloseDetail: () => void;
   onShowProfile?: () => void;
   onShowDashboard?: () => void;
+  onOpenInbox?: () => void;
   splitView?: boolean;
   onToggleSplitView?: () => void;
   onEnterSplitView?: (layout: import('../constants/splitLayouts').SplitLayoutId) => void;
@@ -97,6 +98,7 @@ export function MainLayout({
   onCloseDetail,
   onShowProfile,
   onShowDashboard,
+  onOpenInbox,
   splitView = false,
   onToggleSplitView,
   onEnterSplitView,
@@ -243,6 +245,7 @@ export function MainLayout({
               onManageWorkspaces={onManageWorkspaces}
               onOpenSearch={onOpenSearch}
               searchOpen={searchOpen}
+              onOpenInbox={onOpenInbox}
             />
           )}
 
@@ -252,6 +255,10 @@ export function MainLayout({
           minHeight: 0,
           overflow: 'hidden',
           background: isDarkMode ? APP_BG_GRADIENT : '#f0f2f5',
+          // Plain <aside> does not trigger ant-layout-has-sider — force row
+          // or the icon rail stacks above content and the main pane goes blank/black.
+          flexDirection: 'row',
+          alignItems: 'stretch',
         }}
       >
         {!sidebarsHidden && (
@@ -266,7 +273,9 @@ export function MainLayout({
                 borderRight: `1px solid ${isDarkMode ? COLORS.APP_BORDER : '#d9d9d9'}`,
                 boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
                 zIndex: 100,
-                height: '100%',
+                alignSelf: 'stretch',
+                height: 'auto',
+                minHeight: 0,
                 overflow: 'hidden',
                 position: 'relative',
               }}
@@ -305,7 +314,9 @@ export function MainLayout({
                 width: workspaceDetailVisible ? 300 : 0,
                 minWidth: workspaceDetailVisible ? 300 : 0,
                 flexShrink: 0,
-                height: '100%',
+                alignSelf: 'stretch',
+                height: 'auto',
+                minHeight: 0,
                 overflow: 'hidden',
                 borderRight: workspaceDetailVisible
                   ? `1px solid ${isDarkMode ? COLORS.APP_BORDER : '#d9d9d9'}`
@@ -366,8 +377,11 @@ export function MainLayout({
             position: 'relative',
             overflow: 'hidden',
             marginLeft: 0,
+            flex: 1,
+            minWidth: 0,
             minHeight: 0,
-            height: '100%',
+            height: 'auto',
+            alignSelf: 'stretch',
           }}
         >
           {children}

@@ -19,6 +19,7 @@ import {
   CalendarOutlined,
   SearchOutlined,
   AudioOutlined,
+  InboxOutlined,
 } from '@ant-design/icons';
 import { Button, Space, Tooltip, Typography, Popover, message, Input } from 'antd';
 import { ServiceLogo } from './ServiceLogo';
@@ -38,6 +39,8 @@ import type { ServiceTab, Workspace } from '../../types';
 import type { BrowserTabItem } from '../../types/browserTab';
 import { BrandLogo } from './BrandLogo';
 import { getServiceConfig } from '../../utils/serviceConfig';
+import { useInboxOptional } from '../../context/InboxContext';
+import { formatBadge } from '../../context/UnreadContext';
 
 const { Text } = Typography;
 
@@ -72,6 +75,7 @@ interface AppTitleBarProps {
   onManageWorkspaces?: () => void;
   onOpenSearch?: (initialQuery?: string) => void;
   searchOpen?: boolean;
+  onOpenInbox?: () => void;
 }
 
 export function AppTitleBar({
@@ -99,15 +103,18 @@ export function AppTitleBar({
   onManageWorkspaces,
   onOpenSearch,
   searchOpen = false,
+  onOpenInbox,
 }: AppTitleBarProps) {
   const { userProfile, licenseExpired } = useAuth();
   const voice = useVoiceControlOptional();
+  const inbox = useInboxOptional();
   const [maximized, setMaximized] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [workspaceSheetOpen, setWorkspaceSheetOpen] = useState(false);
   const [tabsSheetOpen, setTabsSheetOpen] = useState(false);
   const [splitPopoverOpen, setSplitPopoverOpen] = useState(false);
   const [searchDraft, setSearchDraft] = useState('');
+  const inboxActive = activeTab === 'inbox';
 
   useEffect(() => {
     if (!searchOpen) setSearchDraft('');
@@ -465,6 +472,54 @@ export function AppTitleBar({
       )}
 
       <Space size={8} style={{ ...noDrag, marginRight: 4 }}>
+        <Tooltip title="Unread inbox — all accounts">
+          <span style={{ position: 'relative', display: 'inline-flex' }}>
+            <Button
+              type="text"
+              icon={<InboxOutlined />}
+              onClick={() => {
+                setWorkspaceSheetOpen(false);
+                setTabsSheetOpen(false);
+                onOpenInbox?.();
+              }}
+              style={{
+                ...iconBtnStyle,
+                color:
+                  inboxActive || (inbox?.totalChats || 0) > 0
+                    ? COLORS.PRIMARY
+                    : iconBtnStyle.color,
+                background: inboxActive
+                  ? isDarkMode
+                    ? 'rgba(139, 124, 246, 0.18)'
+                    : 'rgba(139, 124, 246, 0.12)'
+                  : 'transparent',
+              }}
+              aria-label="Unread inbox"
+            />
+            {(inbox?.totalChats || 0) > 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: 2,
+                  right: 2,
+                  minWidth: 16,
+                  height: 16,
+                  padding: '0 4px',
+                  borderRadius: 999,
+                  background: '#e81123',
+                  color: '#fff',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  lineHeight: '16px',
+                  textAlign: 'center',
+                  pointerEvents: 'none',
+                }}
+              >
+                {formatBadge(inbox?.totalChats || 0)}
+              </span>
+            )}
+          </span>
+        </Tooltip>
         {voice && (
           <Tooltip
             title={

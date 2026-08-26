@@ -67,10 +67,11 @@ export default function userAgent() {
 // Predefined user agents for different services
 export const getUserAgentForService = (serviceType = 'default') => {
   const baseUserAgent = userAgent();
-  
-  // Clean Chrome UA — needed for Instagram / Messenger / Snapchat Web
+
+  // Match Electron's Chromium (strip Electron token) — Google rejects Electron UA.
+  const chromeVer = (chromeVersion || '134.0.0.0').split('.')[0] || '134';
   const chromeDesktop =
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
+    `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVer}.0.0.0 Safari/537.36`;
 
   // Snapchat Web is picky — prefer latest Windows Chrome (Onsnap-compatible), no Electron markers
   const snapchatDesktop =
@@ -101,6 +102,24 @@ export const getUserAgentForService = (serviceType = 'default') => {
 
   return serviceUserAgents[serviceType] || serviceUserAgents.default;
 };
+
+/** Clean Chrome UA + client-hint values for Google login (no Electron). */
+export function getGoogleChromeIdentity() {
+  const full = chromeVersion || '134.0.0.0';
+  const major = full.split('.')[0] || '134';
+  const platform = isMac ? 'macOS' : isWindows ? 'Windows' : 'Linux';
+  const ua = isMac
+    ? `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${major}.0.0.0 Safari/537.36`
+    : isWindows
+      ? `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${major}.0.0.0 Safari/537.36`
+      : `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${major}.0.0.0 Safari/537.36`;
+  return {
+    ua,
+    major,
+    secChUa: `"Google Chrome";v="${major}", "Chromium";v="${major}", "Not=A?Brand";v="24"`,
+    secChUaPlatform: `"${platform}"`,
+  };
+}
 
 // WhatsApp specific user agent (most compatible)
 export const getWhatsAppUserAgent = () => {

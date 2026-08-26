@@ -11,8 +11,10 @@ import {
   buildNotificationBridgeScript,
   buildTitleWatcherScript,
   buildWhatsAppWatcherScript,
+  buildGmailWatcherScript,
   buildOpenChatScript,
 } from '../utils/notificationInject';
+import { onOpenInboxChat } from '../utils/inboxHelpers';
 
 /** Google / Microsoft workspace apps need a real Chrome UA + lighter page shields. */
 const WORKSPACE_WEB_TYPES = new Set([
@@ -295,10 +297,8 @@ const GenericWebView: React.FC<GenericWebViewProps> = ({
       .catch(() => {});
   }, [notificationsEnabled, hasInitialized]);
 
-  // Notification click → open that contact's DM/chat inside the webview
+  // Notification / inbox click → open that contact's DM/chat inside the webview
   useEffect(() => {
-    if (!window.electronAPI?.onOpenNotificationChat) return;
-
     const openChat = (chatName: string) => {
       const webview = webviewRef.current;
       if (!webview || !chatName) return;
@@ -307,25 +307,27 @@ const GenericWebView: React.FC<GenericWebViewProps> = ({
         .catch(() => {});
     };
 
-    const unsub = window.electronAPI.onOpenNotificationChat((data) => {
+    const handleOpen = (data: { serviceId: string; chatName: string }) => {
       if (!data?.chatName) return;
       if (data.serviceId !== service.id && data.serviceId !== service.partition) {
         return;
       }
-      // Wait until this service is active / webview ready
       const run = () => openChat(data.chatName);
       if (isActive && hasInitialized) {
         setTimeout(run, 200);
         setTimeout(run, 800);
       } else {
-        // Tab switch may still be settling
         setTimeout(run, 600);
         setTimeout(run, 1400);
       }
-    });
+    };
+
+    const unsubNotify = window.electronAPI?.onOpenNotificationChat?.(handleOpen);
+    const unsubInbox = onOpenInboxChat(handleOpen);
 
     return () => {
-      if (typeof unsub === 'function') unsub();
+      if (typeof unsubNotify === 'function') unsubNotify();
+      unsubInbox();
     };
   }, [service.id, service.partition, isActive, hasInitialized]);
 
@@ -649,7 +651,7 @@ const GenericWebView: React.FC<GenericWebViewProps> = ({
         `).catch(function() {});
         }
 
-        // OS notifications for messaging platforms (WhatsApp, Instagram, Messenger, …)
+        // OS notifications + unified unread inbox (WhatsApp / Gmail / other messaging)
         if (isMessaging) {
           const bridge = buildNotificationBridgeScript({
             serviceId: service.id,
@@ -667,8 +669,17 @@ const GenericWebView: React.FC<GenericWebViewProps> = ({
                 })
               )
               .catch(() => {});
+          } else if (service.iconType === 'gmail') {
+            webview
+              .executeJavaScript(
+                buildGmailWatcherScript({
+                  serviceId: service.id,
+                  serviceName: service.name,
+                })
+              )
+              .catch(() => {});
           } else {
-            // Instagram / Messenger / etc. — soft unread watcher (no vague alerts)
+            // Instagram / Messenger / etc. — soft unread watcher
             webview.executeJavaScript(buildTitleWatcherScript()).catch(() => {});
           }
         }

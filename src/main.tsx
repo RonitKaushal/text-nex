@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { AppUpdateProvider } from './context/AppUpdateContext';
 import { UnreadProvider } from './context/UnreadContext';
+import { InboxProvider } from './context/InboxContext';
 import { ServiceChromeProvider } from './context/ServiceChromeContext';
 import { VoiceControlProvider } from './context/VoiceControlContext';
 import { ErrorBoundary, PopoutServiceApp } from './components/common';
@@ -26,11 +27,13 @@ createRoot(document.getElementById('root')!).render(
           <AuthProvider>
             <AppUpdateProvider>
               <UnreadProvider>
+                <InboxProvider>
                 <ServiceChromeProvider>
                   <VoiceControlProvider>
                     <App />
                   </VoiceControlProvider>
                 </ServiceChromeProvider>
+                </InboxProvider>
               </UnreadProvider>
             </AppUpdateProvider>
           </AuthProvider>

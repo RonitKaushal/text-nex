@@ -81,7 +81,7 @@ function entry(logoSrc, color, url, fallbackIcon) {
 
 export const SERVICE_CONFIG = {
   whatsapp: entry(whatsappLogo, '#25D366', 'https://web.whatsapp.com'),
-  gmail: entry(gmailLogo, '#EA4335', 'https://mail.google.com'),
+  gmail: entry(gmailLogo, '#EA4335', 'https://mail.google.com/mail/u/0/'),
   messenger: entry(messengerLogo, '#0084FF', 'https://www.messenger.com'),
   slack: entry(slackLogo, '#4A154B', 'https://slack.com'),
   telegram: entry(telegramIcon, '#0088CC', 'https://web.telegram.org'),

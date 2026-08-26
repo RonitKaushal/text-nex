@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Profile, { type AccountSection } from './pages/Profile';
 import AvailableServices from './pages/AvailableServices';
 import Dashboard from './pages/Dashboard';
+import UnreadInboxPage from './pages/UnreadInbox';
 import ServiceRenderer from './components/ServiceRenderer';
 import WorkspaceCreator from './components/WorkspaceCreator';
 import LockServiceModal from './components/LockServiceModal';
@@ -896,6 +897,9 @@ function AppShell() {
       onShowDashboard={() => {
         store.setActiveTab('dashboard');
       }}
+      onOpenInbox={() => {
+        store.setActiveTab('inbox');
+      }}
       splitView={splitView}
       onToggleSplitView={() => {
         if (splitView) {
@@ -926,6 +930,17 @@ function AppShell() {
           notificationsAfterClose={store.notificationsAfterClose}
           onToggleNotificationsAfterClose={store.setNotificationsAfterClose}
           onClearAllData={() => void store.clearAllData()}
+        />
+      ) : store.activeTab === 'inbox' ? (
+        <UnreadInboxPage
+          isDarkMode={isDarkMode}
+          workspaces={store.workspaces}
+          onOpenItem={(service) => {
+            if (service.workspaceId && service.workspaceId !== store.activeWorkspace) {
+              store.setActiveWorkspace(service.workspaceId);
+            }
+            selectService(service.id);
+          }}
         />
       ) : licenseExpired ? (
         <EmptyState

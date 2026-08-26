@@ -14,6 +14,7 @@ const api = {
   clearNotifications: (serviceId) => ipcRenderer.invoke('clear-notifications', serviceId),
   getNotificationsEnabled: () => ipcRenderer.invoke('get-notifications-enabled'),
   reportUnread: (data) => ipcRenderer.send('guest-unread', data),
+  reportUnreadInbox: (data) => ipcRenderer.send('guest-unread-inbox', data),
   platform: process.platform,
   isElectron: true,
 };
